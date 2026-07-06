@@ -842,7 +842,13 @@ function renderSettings(){
   document.getElementById("accTable").innerHTML=`<thead><tr><th>Liste</th>${ROLE_ORDER.map(r=>`<th>${ROLES[r].short}</th>`).join("")}</tr></thead><tbody>${BOARDS.map((b,bi)=>`<tr><td>${esc(b.name)}${b.priv?'<span class="lk">🔒</span>':''}</td>${ROLE_ORDER.map(r=>`<td><input type="checkbox" ${b.access.includes(r)?'checked':''} ${r==="ta"?'disabled':''} onchange="toggleAccess(${bi},'${r}',this.checked)"></td>`).join("")}</tr>`).join("")}</tbody>`;
   document.getElementById("colorList").innerHTML=ROLE_ORDER.map(r=>`<div class="colorrow"><input type="color" value="${colors[r]}" onchange="setColor('${r}',this.value)"><b>${ROLES[r].name}</b></div>`).join("")+`<div class="colorrow"><input type="color" value="${colors.deadline}" onchange="setColor('deadline',this.value)"><b>Deadlines (automatisch)</b></div>`;
 }
-function toggleAccess(bi,role,on){const acc=BOARDS[bi].access;if(on){if(!acc.includes(role))acc.push(role);}else{BOARDS[bi].access=acc.filter(r=>r!==role);}renderAll();}
+async function toggleAccess(bi,role,on){const b=BOARDS[bi];if(!b)return;
+  if(realMode&&sb){
+    if(on){const {error}=await sb.from("board_access").insert({board_id:b.id,role});if(error){toast("⚠️","Konnte Recht nicht speichern.");renderSettings();return;}}
+    else{const {error}=await sb.from("board_access").delete().eq("board_id",b.id).eq("role",role);if(error){toast("⚠️","Konnte Recht nicht entfernen.");renderSettings();return;}}
+  }
+  const acc=b.access;if(on){if(!acc.includes(role))acc.push(role);}else{b.access=acc.filter(r=>r!==role);}
+  renderAll();}
 function setColor(k,v){colors[k]=v;renderAll();}
 let gcalOn=false;
 function toggleGcal(){gcalOn=!gcalOn;const b=document.getElementById("gcalBtn");if(gcalOn){b.textContent="✓ Verbunden (Demo) — trennen";b.classList.remove("ghost");toast("🔗","Google Kalender verbunden (Demo). Echte Sync folgt im Server-Schritt.");}else{b.textContent="🔗 Mit Google Kalender verbinden";b.classList.add("ghost");}}
