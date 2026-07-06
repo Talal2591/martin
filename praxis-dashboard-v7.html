@@ -380,7 +380,7 @@
       <div class="card inbox"><div class="card-head"><h2>Posteingang</h2><span class="hint">Beispieldaten</span></div><div id="mailList"></div></div>
     </section>
 
-    <section id="view-projekte"><div class="proj-grid" id="projGrid"></div></section>
+    <section id="view-projekte"><div style="margin-bottom:16px"><button class="btn" onclick="createProject()">+ Neues Projekt</button></div><div class="proj-grid" id="projGrid"></div></section>
 
     <section id="view-settings">
       <div class="settings-note">⚠️ In dieser Demo steuern die Häkchen die Anzeige (Rollenwechsel). Echte, erzwungene Rechte gibt es mit dem Server-/Login-Schritt.</div>
@@ -546,12 +546,12 @@ let todos=[
 
 let pid=200;
 let projects=[
-  {id:++pid,n:"MVZ-GmbH-Umwandlung",loc:"ÜBAG",s:"laufend",pct:60,deadline:"2026-07-15",note:"Notartermin steht aus.",notes:"",files:[]},
-  {id:++pid,n:"Ausbau 2. OG — 3 Behandlungszimmer",loc:"zak10 Hannover",s:"wartend",pct:35,deadline:"2026-07-22",note:"Baunutzungsänderung eingereicht.",notes:"",files:[]},
-  {id:++pid,n:"Recruiting Assistenz GL",loc:"ÜBAG",s:"laufend",pct:70,deadline:"2026-07-11",note:"Zwei Kandidatinnen in Endauswahl.",notes:"",files:[]},
-  {id:++pid,n:"Intraoralscanner-Beschaffung",loc:"beide Standorte",s:"laufend",pct:80,deadline:"",note:"Finales Angebot angefordert.",notes:"",files:[]},
-  {id:++pid,n:"Recall-System Relaunch",loc:"zak10",s:"fast",pct:90,deadline:"2026-07-14",note:"Nur Druckfreigabe offen.",notes:"",files:[]},
-  {id:++pid,n:"Website-Relaunch zizb.de",loc:"zizb",s:"wartend",pct:45,deadline:"",note:"Texte fehlen noch.",notes:"",files:[]},
+  {id:String(++pid),n:"MVZ-GmbH-Umwandlung",loc:"ÜBAG",s:"laufend",pct:60,deadline:"2026-07-15",note:"Notartermin steht aus.",notes:"",files:[]},
+  {id:String(++pid),n:"Ausbau 2. OG — 3 Behandlungszimmer",loc:"zak10 Hannover",s:"wartend",pct:35,deadline:"2026-07-22",note:"Baunutzungsänderung eingereicht.",notes:"",files:[]},
+  {id:String(++pid),n:"Recruiting Assistenz GL",loc:"ÜBAG",s:"laufend",pct:70,deadline:"2026-07-11",note:"Zwei Kandidatinnen in Endauswahl.",notes:"",files:[]},
+  {id:String(++pid),n:"Intraoralscanner-Beschaffung",loc:"beide Standorte",s:"laufend",pct:80,deadline:"",note:"Finales Angebot angefordert.",notes:"",files:[]},
+  {id:String(++pid),n:"Recall-System Relaunch",loc:"zak10",s:"fast",pct:90,deadline:"2026-07-14",note:"Nur Druckfreigabe offen.",notes:"",files:[]},
+  {id:String(++pid),n:"Website-Relaunch zizb.de",loc:"zizb",s:"wartend",pct:45,deadline:"",note:"Texte fehlen noch.",notes:"",files:[]},
 ];
 
 
@@ -623,12 +623,14 @@ function tileDragStart(kind,key,el){dragKind=kind;dragKey=String(key);el.classLi
 function tileDragEnd(el){el.classList.remove("dragging");document.querySelectorAll(".dragover").forEach(x=>x.classList.remove("dragover"));}
 function tileDragOver(e,el){e.preventDefault();el.classList.add("dragover");}
 function tileDragLeave(el){el.classList.remove("dragover");}
-function tileDrop(kind,key){
+async function tileDrop(kind,key){
   document.querySelectorAll(".dragover").forEach(x=>x.classList.remove("dragover"));
   if(dragKind!==kind||dragKey==null){dragKind=dragKey=null;return;}
   const arr=kind==="boards"?BOARDS:projects;
   const from=arr.findIndex(x=>String(x.id)===dragKey), to=arr.findIndex(x=>String(x.id)===String(key));
-  if(from>-1&&to>-1&&from!==to){const[m]=arr.splice(from,1);arr.splice(to,0,m);}
+  if(from>-1&&to>-1&&from!==to){const[m]=arr.splice(from,1);arr.splice(to,0,m);
+    if(kind==="projects"&&realMode&&sb){try{for(let i=0;i<projects.length;i++){await sb.from("projects").update({sort:i}).eq("id",projects[i].id);}}catch(e){console.error("project order",e);}}
+  }
   dragKind=dragKey=null;renderAll();
 }
 function boardTile(b,forView){
@@ -688,26 +690,34 @@ function renderProjects(){
     <div class="card proj" draggable="true"
       ondragstart="tileDragStart('projects','${p.id}',this)" ondragend="tileDragEnd(this)"
       ondragover="tileDragOver(event,this)" ondragleave="tileDragLeave(this)" ondrop="tileDrop('projects','${p.id}')"
-      onclick="if(!event.target.closest('button')&&!event.target.closest('.grip2'))openProject(${p.id})">
+      onclick="if(!event.target.closest('button')&&!event.target.closest('.grip2'))openProject('${p.id}')">
       <span class="grip2" title="Ziehen zum Sortieren">⠿</span>
       <div class="proj-top"><div><h3>${esc(p.n)}</h3><div class="loc">${esc(p.loc)}</div>${p.deadline?`<div class="dl">⏱ Deadline ${fmt(p.deadline)}</div>`:''}</div>
-        <button class="status s-${p.s}" onclick="event.stopPropagation();cycleStatus(${p.id})">${statusLabel[p.s]}</button></div>
+        <button class="status s-${p.s}" onclick="event.stopPropagation();cycleStatus('${p.id}')">${statusLabel[p.s]}</button></div>
       <p>${esc(p.note)}</p>
       <div style="display:flex;gap:8px;align-items:center">${p.notes?'<span class="meta-ic">📝 Notizen</span>':''}${p.files.length?`<span class="meta-ic">📎 ${p.files.length}</span>`:''}</div>
       <div class="bar-p"><i style="width:${p.pct}%"></i></div>
-      <div class="proj-foot"><span class="pct">${p.pct}%</span><span class="steppers"><button class="stepper" onclick="event.stopPropagation();bumpPct(${p.id},-5)">−</button><button class="stepper" onclick="event.stopPropagation();bumpPct(${p.id},5)">+</button></span></div>
+      <div class="proj-foot"><span class="pct">${p.pct}%</span><span class="steppers"><button class="stepper" onclick="event.stopPropagation();bumpPct('${p.id}',-5)">−</button><button class="stepper" onclick="event.stopPropagation();bumpPct('${p.id}',5)">+</button></span></div>
     </div>`).join("");
   if(curProj!=null&&document.getElementById("view-project").classList.contains("visible"))renderProjectPage();
 }
 const projById=id=>projects.find(p=>p.id===id);
-function cycleStatus(id){const p=projById(id);p.s=statusCycle[(statusCycle.indexOf(p.s)+1)%statusCycle.length];notifyIfOther("🔄","#3E7BFF",ROLES[currentRole].name+" hat einen Projektstatus geändert.");renderAll();}
-function bumpPct(id,d){const p=projById(id);p.pct=Math.min(100,Math.max(0,p.pct+d));if(p.pct===100)notifyIfOther("✅","#3EF0B0",ROLES[currentRole].name+" hat ein Projekt abgeschlossen.");renderAll();}
+async function createProject(){
+  if(realMode&&sb){const {data,error}=await sb.from("projects").insert({name:"Neues Projekt"}).select().single();if(error){toast("⚠️","Konnte Projekt nicht anlegen.");return;}projects.push(rowToProject(data));renderProjects();openProject(data.id);}
+  else{const np={id:String(++pid),n:"Neues Projekt",loc:"",s:"laufend",pct:0,deadline:"",note:"",notes:"",files:[]};projects.push(np);renderProjects();openProject(np.id);}
+}
+async function cycleStatus(id){const p=projById(id);if(!p)return;const ns=statusCycle[(statusCycle.indexOf(p.s)+1)%statusCycle.length];
+  if(realMode&&sb){const {error}=await sb.from("projects").update({status:ns}).eq("id",id);if(error){toast("⚠️","Konnte Status nicht speichern.");return;}}
+  p.s=ns;notifyIfOther("🔄","#3E7BFF",ROLES[currentRole].name+" hat einen Projektstatus geändert.");renderAll();}
+async function bumpPct(id,d){const p=projById(id);if(!p)return;const nv=Math.min(100,Math.max(0,p.pct+d));
+  if(realMode&&sb){const {error}=await sb.from("projects").update({pct:nv}).eq("id",id);if(error){toast("⚠️","Konnte Fortschritt nicht speichern.");return;}}
+  p.pct=nv;if(p.pct===100)notifyIfOther("✅","#3EF0B0",ROLES[currentRole].name+" hat ein Projekt abgeschlossen.");renderAll();}
 function openProject(id){curProj=id;renderProjectPage();showSection("view-project","<span>"+esc(projById(id).n)+"</span>","projekte");}
 function renderProjectPage(){const p=projById(curProj);if(!p)return;
   document.getElementById("view-project").innerHTML=`<button class="btn ghost" onclick="goView('projekte')">← Zurück zu allen Projekten</button>
     <div class="card" style="margin-top:14px;padding:24px;display:flex;flex-direction:column;gap:18px">
-      <div class="proj-top"><div><h2 style="font-size:19px">${esc(p.n)}</h2><div class="loc">${esc(p.loc)}</div></div><button class="status s-${p.s}" onclick="cycleStatus(${p.id})">${statusLabel[p.s]}</button></div>
-      <div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:12px;color:var(--dim)">Fortschritt</span><span style="font-family:'JetBrains Mono';font-weight:700;color:var(--cyan)">${p.pct}%</span></div><div class="bar-p"><i style="width:${p.pct}%"></i></div><div class="steppers" style="margin-top:10px"><button class="stepper" onclick="bumpPct(${p.id},-5)">−</button><button class="stepper" onclick="bumpPct(${p.id},5)">+</button></div></div>
+      <div class="proj-top"><div><h2 style="font-size:19px">${esc(p.n)}</h2><div class="loc">${esc(p.loc)}</div></div><button class="status s-${p.s}" onclick="cycleStatus('${p.id}')">${statusLabel[p.s]}</button></div>
+      <div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span style="font-size:12px;color:var(--dim)">Fortschritt</span><span style="font-family:'JetBrains Mono';font-weight:700;color:var(--cyan)">${p.pct}%</span></div><div class="bar-p"><i style="width:${p.pct}%"></i></div><div class="steppers" style="margin-top:10px"><button class="stepper" onclick="bumpPct('${p.id}',-5)">−</button><button class="stepper" onclick="bumpPct('${p.id}',5)">+</button></div></div>
       <div class="field"><label>Name</label><input type="text" value="${esc(p.n)}" onchange="projField('n',this.value)"></div>
       <div class="row2"><div class="field"><label>Standort</label><input type="text" value="${esc(p.loc)}" onchange="projField('loc',this.value)"></div><div class="field"><label>Deadline</label><input type="date" value="${p.deadline||''}" onchange="projField('deadline',this.value)"></div></div>
       <div class="field"><label>Beschreibung / Status-Notiz</label><textarea onchange="projField('note',this.value)">${esc(p.note)}</textarea></div>
@@ -719,7 +729,10 @@ function renderProjectPage(){const p=projById(curProj);if(!p)return;
 function renderPPFiles(){const p=projById(curProj);if(!p)return;const el=document.getElementById("ppFiles");if(!el)return;el.innerHTML=(p.files||[]).map((f,i)=>`<span class="chip"><a href="${f.url}" download="${esc(f.name)}">${esc(f.name)}</a><span style="color:var(--dim);font-size:10px">${f.size}</span><span class="x" onclick="removeProjFile(${i})">×</span></span>`).join("")||'<span style="color:var(--dim);font-size:12px">Keine Dateien</span>';}
 function addProjFiles(e){const p=projById(curProj);[...e.target.files].forEach(f=>p.files.push({name:f.name,size:(f.size/1024).toFixed(0)+" KB",url:URL.createObjectURL(f)}));e.target.value="";renderProjects();}
 function removeProjFile(i){projById(curProj).files.splice(i,1);renderProjects();}
-function projField(k,v){projById(curProj)[k]=v;renderAll();}
+const PROJ_COL={n:"name",loc:"loc",deadline:"deadline",note:"note",notes:"notes"};
+async function projField(k,v){const p=projById(curProj);if(!p)return;
+  if(realMode&&sb&&PROJ_COL[k]){const val=(k==="deadline")?(v||null):v;const {error}=await sb.from("projects").update({[PROJ_COL[k]]:val}).eq("id",curProj);if(error){toast("⚠️","Konnte nicht speichern.");return;}}
+  p[k]=v;renderAll();}
 
 /* ===== CALENDAR ===== */
 let calView="week", weekRef=new Date(2026,6,6), monthRef=new Date(2026,6,1);
@@ -887,7 +900,13 @@ async function loadTodos(){
   if(error){console.error("todos",error);toast("⚠️","Aufgaben konnten nicht geladen werden.");return;}
   todos=(data||[]).map(rowToTodo);
 }
-async function loadFromDB(){await loadBoards();await loadTodos();}
+function rowToProject(r){return {id:r.id,n:r.name,loc:r.loc||"",s:r.status||"laufend",pct:r.pct||0,deadline:r.deadline||"",note:r.note||"",notes:r.notes||"",files:[]};}
+async function loadProjects(){
+  const {data,error}=await sb.from("projects").select("*").order("sort");
+  if(error){console.error("projects",error);toast("⚠️","Projekte konnten nicht geladen werden.");return;}
+  projects=(data||[]).map(rowToProject);
+}
+async function loadFromDB(){await loadBoards();await loadTodos();await loadProjects();}
 
 /* ===== RENDER ALL ===== */
 function renderAll(){renderOverview();renderProjects();renderCalendar();renderChat();renderInbox();renderSettings();updateKpis();updateChatCount();renderNotifs();if(curBoard&&document.getElementById("view-board").classList.contains("visible"))renderBoardPage();}
