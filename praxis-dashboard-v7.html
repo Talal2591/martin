@@ -473,7 +473,7 @@ async function enterReal(user){
   document.getElementById("roleSwitchWrap").style.display="none";      // Rollen-Umschalter im Echtbetrieb aus
   if(ROLES[prof.role])document.getElementById("roleSelect").value=prof.role;
   switchRole(prof.role);
-  boot();
+  await boot();
 }
 /* Bereits bestehende Session beim Laden fortsetzen */
 async function initAuth(){
@@ -483,6 +483,7 @@ async function initAuth(){
 function demoEnter(){enterApp("demo@cockpit.local");}
 function enterApp(email){
   realMode=false;
+  BOARDS=JSON.parse(JSON.stringify(SEED.boards));todos=JSON.parse(JSON.stringify(SEED.todos));projects=JSON.parse(JSON.stringify(SEED.projects));events=JSON.parse(JSON.stringify(SEED.events));
   account=email;
   document.getElementById("login").style.display="none";
   document.getElementById("app").classList.add("on");
@@ -531,16 +532,16 @@ const canSee=b=>b.access.includes(currentRole);
 
 let uid=100;
 let todos=[
-  {id:++uid,board:"eingang_ta",t:"Zweite Meinung zu MVZ-Firmierung einholen",p:"mittel",d:"",done:false,notes:"",files:[]},
-  {id:++uid,board:"eingang_pl",t:"Dienstplan KW 29 final abstimmen",p:"mittel",d:"2026-07-09",done:false,notes:"",files:[]},
-  {id:++uid,board:"tages",t:"Herr Hippke: Unterlagen MVZ-Umwandlung freigeben",p:"hoch",d:"2026-07-03",done:false,notes:"Anlage 3 fehlt noch.",files:[]},
-  {id:++uid,board:"tages",t:"Zweitgespräch Assistenz terminieren",p:"hoch",d:"2026-07-07",done:false,notes:"",files:[]},
-  {id:++uid,board:"wochen",t:"Bauamt Ronnenberg wegen Bebauungsplan nachfassen",p:"hoch",d:"2026-07-06",done:false,notes:"Frau Mühlnikel.",files:[]},
-  {id:++uid,board:"privat_ta",t:"Familienausflug planen",p:"niedrig",d:"",done:false,notes:"",files:[]},
-  {id:++uid,board:"db",t:"Materialbestellung zizb prüfen",p:"mittel",d:"2026-07-08",done:false,notes:"",files:[]},
-  {id:++uid,board:"tages_ass",t:"Termine mit Steuerberater koordinieren",p:"hoch",d:"2026-07-04",done:false,notes:"",files:[]},
-  {id:++uid,board:"wochen_ass",t:"Recall-Briefe Q3 an Druckerei senden",p:"mittel",d:"2026-07-14",done:false,notes:"",files:[]},
-  {id:++uid,board:"sa",t:"Rückruf Implantatlieferant klären",p:"mittel",d:"2026-07-08",done:false,notes:"",files:[]},
+  {id:String(++uid),board:"eingang_ta",t:"Zweite Meinung zu MVZ-Firmierung einholen",p:"mittel",d:"",done:false,notes:"",files:[]},
+  {id:String(++uid),board:"eingang_pl",t:"Dienstplan KW 29 final abstimmen",p:"mittel",d:"2026-07-09",done:false,notes:"",files:[]},
+  {id:String(++uid),board:"tages",t:"Herr Hippke: Unterlagen MVZ-Umwandlung freigeben",p:"hoch",d:"2026-07-03",done:false,notes:"Anlage 3 fehlt noch.",files:[]},
+  {id:String(++uid),board:"tages",t:"Zweitgespräch Assistenz terminieren",p:"hoch",d:"2026-07-07",done:false,notes:"",files:[]},
+  {id:String(++uid),board:"wochen",t:"Bauamt Ronnenberg wegen Bebauungsplan nachfassen",p:"hoch",d:"2026-07-06",done:false,notes:"Frau Mühlnikel.",files:[]},
+  {id:String(++uid),board:"privat_ta",t:"Familienausflug planen",p:"niedrig",d:"",done:false,notes:"",files:[]},
+  {id:String(++uid),board:"db",t:"Materialbestellung zizb prüfen",p:"mittel",d:"2026-07-08",done:false,notes:"",files:[]},
+  {id:String(++uid),board:"tages_ass",t:"Termine mit Steuerberater koordinieren",p:"hoch",d:"2026-07-04",done:false,notes:"",files:[]},
+  {id:String(++uid),board:"wochen_ass",t:"Recall-Briefe Q3 an Druckerei senden",p:"mittel",d:"2026-07-14",done:false,notes:"",files:[]},
+  {id:String(++uid),board:"sa",t:"Rückruf Implantatlieferant klären",p:"mittel",d:"2026-07-08",done:false,notes:"",files:[]},
 ];
 
 let pid=200;
@@ -561,6 +562,9 @@ let events=[
   {id:++evId,title:"Teambesprechung zak10",date:"2026-07-09",time:"12:30",end:"13:30",owner:"berk",private:false,reminder:null},
   {id:++evId,title:"Praxislabor Abstimmung",date:"2026-07-10",time:"09:00",end:"10:00",owner:"sami",private:false,reminder:null},
 ];
+
+/* Demo-Seed sichern, damit die Demo-Ansicht nach einem echten Login wieder Beispieldaten zeigt */
+const SEED={boards:JSON.parse(JSON.stringify(BOARDS)),todos:JSON.parse(JSON.stringify(todos)),projects:JSON.parse(JSON.stringify(projects)),events:JSON.parse(JSON.stringify(events))};
 
 const mails=[
   {from:"Steuerkanzlei Hippke",init:"H",col:"#3E7BFF",sub:"MVZ-Umwandlung — fehlende Unterlagen",prev:"Sehr geehrter Herr Dr. Atassi, für die Umwandlung fehlt uns noch die Anlage …",time:"09:12",unread:true},
@@ -643,15 +647,22 @@ function boardTile(b,forView){
 
 /* ===== BOARD SUB-PAGE ===== */
 function openBoard(id){const b=BOARDS.find(x=>x.id===id);if(!b||!canSee(b)){goView("overview");return;}curBoard=id;renderBoardPage();showSection("view-board","<span>"+esc(b.name)+"</span>","todos");}
-function fullRow(t){const o=(!t.done&&isOverdue(t.d));return `<div class="frow ${t.done?'done':''}"><button class="check" onclick="toggleTodo(${t.id})">✓</button><div class="fmain" onclick="openDetail(${t.id})"><div class="ftxt">${esc(t.t)}</div><div class="fmeta"><span class="badge p-${t.p}">${t.p}</span>${t.d?`<span class="due ${o?'overdue':''}">${o?'⚠ ':''}Fällig ${fmt(t.d)}</span>`:''}${t.notes?'<span class="meta-ic">📝 Notiz</span>':''}${(t.files&&t.files.length)?`<span class="meta-ic">📎 ${t.files.length}</span>`:''}</div></div><button class="icobtn" onclick="delTodoById(${t.id})" title="Löschen">🗑</button></div>`;}
+function fullRow(t){const o=(!t.done&&isOverdue(t.d));return `<div class="frow ${t.done?'done':''}"><button class="check" onclick="toggleTodo('${t.id}')">✓</button><div class="fmain" onclick="openDetail('${t.id}')"><div class="ftxt">${esc(t.t)}</div><div class="fmeta"><span class="badge p-${t.p}">${t.p}</span>${t.d?`<span class="due ${o?'overdue':''}">${o?'⚠ ':''}Fällig ${fmt(t.d)}</span>`:''}${t.notes?'<span class="meta-ic">📝 Notiz</span>':''}${(t.files&&t.files.length)?`<span class="meta-ic">📎 ${t.files.length}</span>`:''}</div></div><button class="icobtn" onclick="delTodoById('${t.id}')" title="Löschen">🗑</button></div>`;}
 function renderBoardPage(){const b=BOARDS.find(x=>x.id===curBoard);if(!b)return;const items=todos.filter(t=>t.board===b.id);const order={hoch:0,mittel:1,niedrig:2};items.sort((a,x)=>(a.done-x.done)||(order[a.p]-order[x.p]));const open=items.filter(t=>!t.done).length;
   document.getElementById("view-board").innerHTML=`<button class="btn ghost" onclick="goView('todos')">← Zurück zu allen Listen</button>
     <div class="card" style="margin-top:14px"><div class="card-head"><h2>${b.priv?'🔒 ':''}${esc(b.name)}</h2><span class="hint">${open} offen · ${items.length} gesamt</span></div>
     <div style="display:flex;gap:8px;padding:14px 20px;border-bottom:1px solid var(--line)"><input type="text" id="boardAddInput" placeholder="Neue Aufgabe …" style="flex:1" onkeydown="if(event.key==='Enter')boardQuickAdd()"><button class="btn" onclick="boardQuickAdd()">Hinzufügen</button></div>
     <div class="fulllist">${items.map(fullRow).join("")||'<div style="padding:22px;color:var(--dim);font-size:13px">Noch keine Aufgaben.</div>'}</div></div>`;}
-function boardQuickAdd(){const i=document.getElementById("boardAddInput"),v=i.value.trim();if(!v)return;todos.push({id:++uid,board:curBoard,t:v,p:"mittel",d:"",done:false,notes:"",files:[]});renderAll();}
-function delTodoById(id){todos=todos.filter(x=>x.id!==id);renderAll();}
-function toggleTodo(id){const t=todos.find(x=>x.id===id);if(!t)return;t.done=!t.done;if(t.done)notifyIfOther("✅","#3EF0B0",ROLES[currentRole].name+" hat eine Aufgabe erledigt.");renderAll();}
+async function boardQuickAdd(){const i=document.getElementById("boardAddInput"),v=i.value.trim();if(!v)return;
+  if(realMode&&sb){const {data,error}=await sb.from("todos").insert({board_id:curBoard,title:v,priority:"mittel"}).select().single();if(error){toast("⚠️","Konnte Aufgabe nicht speichern.");return;}todos.push(rowToTodo(data));}
+  else{todos.push({id:String(++uid),board:curBoard,t:v,p:"mittel",d:"",done:false,notes:"",files:[]});}
+  renderAll();}
+async function delTodoById(id){
+  if(realMode&&sb){const {error}=await sb.from("todos").delete().eq("id",id);if(error){toast("⚠️","Konnte nicht löschen.");return;}}
+  todos=todos.filter(x=>x.id!==id);renderAll();}
+async function toggleTodo(id){const t=todos.find(x=>x.id===id);if(!t)return;const nv=!t.done;
+  if(realMode&&sb){const {error}=await sb.from("todos").update({done:nv}).eq("id",id);if(error){toast("⚠️","Konnte Status nicht speichern.");return;}}
+  t.done=nv;if(t.done)notifyIfOther("✅","#3EF0B0",ROLES[currentRole].name+" hat eine Aufgabe erledigt.");renderAll();}
 
 /* ===== TODO DETAIL MODAL ===== */
 let detailId=null;
@@ -659,8 +670,13 @@ function openDetail(id){detailId=id;const t=todos.find(x=>x.id===id);if(!t)retur
 function renderDFiles(){const t=todos.find(x=>x.id===detailId);document.getElementById("dFiles").innerHTML=(t.files||[]).map((f,i)=>`<span class="chip"><a href="${f.url}" download="${esc(f.name)}">${esc(f.name)}</a><span style="color:var(--dim);font-size:10px">${f.size}</span><span class="x" onclick="removeFile(${i})">×</span></span>`).join("")||'<span style="color:var(--dim);font-size:12px">Keine Dateien</span>';}
 function addFiles(e){const t=todos.find(x=>x.id===detailId);[...e.target.files].forEach(f=>t.files.push({name:f.name,size:(f.size/1024).toFixed(0)+" KB",url:URL.createObjectURL(f)}));e.target.value="";renderDFiles();}
 function removeFile(i){todos.find(x=>x.id===detailId).files.splice(i,1);renderDFiles();}
-function saveDetail(){const t=todos.find(x=>x.id===detailId);t.t=document.getElementById("dTitle").value.trim()||t.t;t.p=document.getElementById("dPrio").value;t.d=document.getElementById("dDate").value;t.notes=document.getElementById("dNotes").value;t.board=document.getElementById("dBoard").value;closeDetail();renderAll();}
-function deleteDetail(){todos=todos.filter(x=>x.id!==detailId);closeDetail();renderAll();}
+async function saveDetail(){const t=todos.find(x=>x.id===detailId);if(!t)return;
+  const nt=document.getElementById("dTitle").value.trim()||t.t,np=document.getElementById("dPrio").value,nd=document.getElementById("dDate").value,nn=document.getElementById("dNotes").value,nb=document.getElementById("dBoard").value;
+  if(realMode&&sb){const {error}=await sb.from("todos").update({title:nt,priority:np,due_date:nd||null,notes:nn,board_id:nb}).eq("id",detailId);if(error){toast("⚠️","Konnte Änderungen nicht speichern.");return;}}
+  t.t=nt;t.p=np;t.d=nd;t.notes=nn;t.board=nb;closeDetail();renderAll();}
+async function deleteDetail(){
+  if(realMode&&sb){const {error}=await sb.from("todos").delete().eq("id",detailId);if(error){toast("⚠️","Konnte nicht löschen.");return;}}
+  todos=todos.filter(x=>x.id!==detailId);closeDetail();renderAll();}
 function closeDetail(){document.getElementById("detailBg").classList.remove("open");}
 document.getElementById("detailBg").addEventListener("click",e=>{if(e.target.id==="detailBg")closeDetail();});
 
@@ -824,9 +840,9 @@ function renderOverview(){
   document.getElementById("todoTiles").innerHTML=BOARDS.filter(canSee).map(b=>boardTile(b,true)).join("");
   const vis=BOARDS.filter(canSee).map(b=>b.id);
   const top=todos.filter(t=>!t.done&&vis.includes(t.board)&&(t.p==="hoch"||isOverdue(t.d))).slice(0,5);
-  document.getElementById("todayList").innerHTML=top.length?top.map(t=>`<div style="display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;cursor:pointer" onclick="openDetail(${t.id})"><span style="width:8px;height:8px;border-radius:50%;background:${isOverdue(t.d)?'var(--red)':'var(--cyan)'};flex-shrink:0"></span><span style="flex:1">${esc(t.t)}</span><span class="mono" style="font-size:11px;color:${isOverdue(t.d)?'var(--red)':'var(--dim)'}">${fmt(t.d)}</span></div>`).join(""):'<div style="color:var(--dim);font-size:13px;padding:8px 0">Nichts Dringendes.</div>';
+  document.getElementById("todayList").innerHTML=top.length?top.map(t=>`<div style="display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;cursor:pointer" onclick="openDetail('${t.id}')"><span style="width:8px;height:8px;border-radius:50%;background:${isOverdue(t.d)?'var(--red)':'var(--cyan)'};flex-shrink:0"></span><span style="flex:1">${esc(t.t)}</span><span class="mono" style="font-size:11px;color:${isOverdue(t.d)?'var(--red)':'var(--dim)'}">${fmt(t.d)}</span></div>`).join(""):'<div style="color:var(--dim);font-size:13px;padding:8px 0">Nichts Dringendes.</div>';
   const tb=BOARDS.find(b=>b.id==="tages");let th;
-  if(tb&&canSee(tb)){const its=todos.filter(t=>t.board==="tages"&&!t.done);th=its.length?its.map(t=>`<div style="display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;cursor:pointer" onclick="openDetail(${t.id})"><span style="width:8px;height:8px;border-radius:50%;background:${t.p==='hoch'?'var(--red)':t.p==='mittel'?'var(--amber)':'var(--green)'};flex-shrink:0"></span><span style="flex:1">${esc(t.t)}</span><span class="mono" style="font-size:11px;color:var(--dim)">${fmt(t.d)}</span></div>`).join(""):'<div style="color:var(--dim);font-size:13px;padding:8px 0">Keine Tages-ToDos offen.</div>';}else{th='<div style="color:var(--dim);font-size:13px;padding:8px 0">In dieser Rolle nicht sichtbar.</div>';}
+  if(tb&&canSee(tb)){const its=todos.filter(t=>t.board==="tages"&&!t.done);th=its.length?its.map(t=>`<div style="display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--line);font-size:13px;cursor:pointer" onclick="openDetail('${t.id}')"><span style="width:8px;height:8px;border-radius:50%;background:${t.p==='hoch'?'var(--red)':t.p==='mittel'?'var(--amber)':'var(--green)'};flex-shrink:0"></span><span style="flex:1">${esc(t.t)}</span><span class="mono" style="font-size:11px;color:var(--dim)">${fmt(t.d)}</span></div>`).join(""):'<div style="color:var(--dim);font-size:13px;padding:8px 0">Keine Tages-ToDos offen.</div>';}else{th='<div style="color:var(--dim);font-size:13px;padding:8px 0">In dieser Rolle nicht sichtbar.</div>';}
   document.getElementById("tagesList").innerHTML=th;
 }
 
@@ -857,9 +873,25 @@ document.getElementById("today").textContent=new Date().toLocaleDateString("de-D
 function tick(){document.getElementById("clock").textContent=new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});}
 tick();setInterval(tick,15000);
 
+/* ===== SUPABASE DATA LOADING ===== */
+function rowToTodo(r){return {id:r.id,board:r.board_id,t:r.title,p:r.priority||"mittel",d:r.due_date||"",done:!!r.done,notes:r.notes||"",files:[]};}
+async function loadBoards(){
+  const {data:bs,error}=await sb.from("boards").select("id,name,priv,sort").order("sort");
+  if(error){console.error("boards",error);toast("⚠️","Listen konnten nicht geladen werden.");return;}
+  const {data:acc,error:ae}=await sb.from("board_access").select("board_id,role");
+  if(ae)console.error("board_access",ae);
+  BOARDS=(bs||[]).map(b=>({id:b.id,name:b.name,priv:!!b.priv,sort:b.sort,access:(acc||[]).filter(a=>a.board_id===b.id).map(a=>a.role)}));
+}
+async function loadTodos(){
+  const {data,error}=await sb.from("todos").select("*").order("sort");
+  if(error){console.error("todos",error);toast("⚠️","Aufgaben konnten nicht geladen werden.");return;}
+  todos=(data||[]).map(rowToTodo);
+}
+async function loadFromDB(){await loadBoards();await loadTodos();}
+
 /* ===== RENDER ALL ===== */
 function renderAll(){renderOverview();renderProjects();renderCalendar();renderChat();renderInbox();renderSettings();updateKpis();updateChatCount();renderNotifs();if(curBoard&&document.getElementById("view-board").classList.contains("visible"))renderBoardPage();}
-function boot(){primeReminders();renderAll();}
+async function boot(){if(realMode&&sb){await loadFromDB();}primeReminders();renderAll();}
 
 /* Beim Laden bestehende Supabase-Session prüfen und ggf. direkt anmelden */
 initAuth();
