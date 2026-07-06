@@ -494,6 +494,8 @@ function enterApp(email){
 }
 function logout(){
   if(realMode&&sb){try{sb.auth.signOut();}catch(e){}}
+  if(msgChannel&&sb){try{sb.removeChannel(msgChannel);}catch(e){}msgChannel=null;}
+  if(msgPollTimer){clearInterval(msgPollTimer);msgPollTimer=null;}
   realMode=false;
   document.getElementById("roleSwitchWrap").style.display="";
   document.getElementById("app").classList.remove("on");
@@ -712,6 +714,9 @@ async function cycleStatus(id){const p=projById(id);if(!p)return;const ns=status
 async function bumpPct(id,d){const p=projById(id);if(!p)return;const nv=Math.min(100,Math.max(0,p.pct+d));
   if(realMode&&sb){const {error}=await sb.from("projects").update({pct:nv}).eq("id",id);if(error){toast("⚠️","Konnte Fortschritt nicht speichern.");return;}}
   p.pct=nv;if(p.pct===100)notifyIfOther("✅","#3EF0B0",ROLES[currentRole].name+" hat ein Projekt abgeschlossen.");renderAll();}
+async function deleteProject(id){
+  if(realMode&&sb){const {error}=await sb.from("projects").delete().eq("id",id);if(error){toast("⚠️","Konnte Projekt nicht löschen.");return;}}
+  projects=projects.filter(p=>p.id!==id);curProj=null;goView("projekte");renderAll();}
 function openProject(id){curProj=id;renderProjectPage();showSection("view-project","<span>"+esc(projById(id).n)+"</span>","projekte");}
 function renderProjectPage(){const p=projById(curProj);if(!p)return;
   document.getElementById("view-project").innerHTML=`<button class="btn ghost" onclick="goView('projekte')">← Zurück zu allen Projekten</button>
@@ -723,6 +728,7 @@ function renderProjectPage(){const p=projById(curProj);if(!p)return;
       <div class="field"><label>Beschreibung / Status-Notiz</label><textarea onchange="projField('note',this.value)">${esc(p.note)}</textarea></div>
       <div class="field"><label>Weitere Notizen</label><textarea placeholder="Verlauf, offene Punkte …" onchange="projField('notes',this.value)">${esc(p.notes||'')}</textarea></div>
       <div class="field"><label>Dateien</label><div class="chips" id="ppFiles" style="margin-bottom:8px"></div><button class="btn ghost" onclick="document.getElementById('ppFileInput').click()">📎 Datei anhängen</button><input type="file" id="ppFileInput" multiple style="display:none" onchange="addProjFiles(event)"></div>
+      <div style="display:flex;justify-content:flex-end;border-top:1px solid var(--line);padding-top:16px"><button class="btn danger" onclick="deleteProject('${p.id}')">Projekt löschen</button></div>
     </div>`;
   renderPPFiles();
 }
@@ -845,9 +851,24 @@ async function sendMsg(){if(!chatContact)return;const inp=document.getElementByI
   if(realMode&&sb){const {error}=await sb.from("messages").insert({from_role:currentRole,to_role:chatContact,body:txt});if(error){toast("⚠️","Nachricht konnte nicht gesendet werden.");return;}}
   messages[key]=messages[key]||[];messages[key].push({from:currentRole,text:txt,files:chatPend.slice(),time});
   inp.value="";chatPend=[];notifyIfOther("💬","#3ED6FF",ROLES[currentRole].name+" hat Ihnen geschrieben.");renderChat();updateChatCount();}
-/* Chat: eingehende Nachrichten regelmäßig nachladen, solange der Chat offen ist */
-async function pollMessages(){if(!realMode||!sb)return;if(!document.getElementById("view-chat").classList.contains("visible"))return;await loadMessages();renderChat();updateChatCount();}
-setInterval(pollMessages,8000);
+/* Chat: Live-Updates via Supabase Realtime (WebSocket); Polling nur als Fallback, falls Realtime nicht verfügbar */
+let msgChannel=null, msgPollTimer=null;
+async function pollMessages(){if(!realMode||!sb)return;if(!document.getElementById("view-chat").classList.contains("visible"))return;await loadMessages();if(document.getElementById("view-chat").classList.contains("visible"))renderChat();updateChatCount();}
+function startMsgPoll(){if(!msgPollTimer)msgPollTimer=setInterval(pollMessages,10000);}
+function subscribeMessages(){
+  if(!realMode||!sb||msgChannel)return;
+  msgChannel=sb.channel("public:messages")
+    .on("postgres_changes",{event:"INSERT",schema:"public",table:"messages",filter:"to_role=eq."+currentRole},payload=>{
+      const r=payload&&payload.new;if(!r)return;
+      if(r.from_role===currentRole)return;                       // eigene Nachrichten sind lokal schon sichtbar
+      const k=pairId(r.from_role,r.to_role);
+      (messages[k]=messages[k]||[]).push({from:r.from_role,text:r.body||"",files:[],time:new Date(r.created_at).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})});
+      updateChatCount();
+      if(document.getElementById("view-chat").classList.contains("visible"))renderChat();
+      if(ROLES[r.from_role])pushNotif("💬","#3ED6FF",ROLES[r.from_role].name+" hat Ihnen geschrieben.");
+    })
+    .subscribe((status)=>{ if(status==="CHANNEL_ERROR"||status==="TIMED_OUT")startMsgPoll(); });
+}
 function updateChatCount(){let c=0;Object.values(messages).forEach(t=>c+=t.length);document.getElementById("chatCount").textContent=c;}
 
 /* ===== INBOX ===== */
@@ -944,7 +965,7 @@ async function loadFromDB(){await loadBoards();await loadTodos();await loadProje
 
 /* ===== RENDER ALL ===== */
 function renderAll(){renderOverview();renderProjects();renderCalendar();renderChat();renderInbox();renderSettings();updateKpis();updateChatCount();renderNotifs();if(curBoard&&document.getElementById("view-board").classList.contains("visible"))renderBoardPage();}
-async function boot(){if(realMode&&sb){await loadFromDB();}primeReminders();renderAll();}
+async function boot(){if(realMode&&sb){await loadFromDB();subscribeMessages();}primeReminders();renderAll();}
 
 /* Beim Laden bestehende Supabase-Session prüfen und ggf. direkt anmelden */
 initAuth();
