@@ -305,10 +305,12 @@
       <button class="nav-btn" data-view="settings" data-roles="ta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Einstellungen</button>
     </nav>
     <div class="rolebox">
+      <div id="roleSwitchWrap">
       <label>Ansicht als (Demo)</label>
       <select id="roleSelect" onchange="switchRole(this.value)">
         <option value="ta">Dr. Talal Atassi (Sie)</option><option value="frau">Ehefrau</option><option value="sami">Dr. Sami Atassi</option><option value="ass">Persönliche Assistenz</option><option value="berk">Dominika Berk</option>
       </select>
+      </div>
       <div class="hint"><span class="pulse"></span><span id="roleHint">Vollzugriff.</span></div>
       <button class="logout" onclick="logout()">Abmelden</button>
     </div>
@@ -425,7 +427,15 @@
 
 <div class="toast-wrap" id="toastWrap"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+/* ===== SUPABASE ===== */
+const SUPABASE_URL="https://zbirvbsioblbxnejfthe.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_MZII9Z2n5R7EC4DxlcBBmQ_k2b6oHlW";
+let sb=null;
+try{ if(window.supabase&&window.supabase.createClient){ sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY); } }catch(e){ console.error("Supabase-Init fehlgeschlagen",e); }
+let realMode=false;   // true = echtes Login gegen Supabase, false = Demo-Ansicht
+
 /* ===== AUTH ===== */
 let signupMode=false, account="";
 function toggleSignup(){
@@ -436,24 +446,59 @@ function toggleSignup(){
   document.getElementById("loginSwitch").innerHTML=signupMode?'Bereits registriert? <a onclick="toggleSignup()">Anmelden</a>':'Noch kein Zugang? <a onclick="toggleSignup()">Registrieren</a>';
   document.getElementById("loginErr").textContent="";
 }
-function doLogin(){
+async function doLogin(){
   const em=document.getElementById("loginEmail").value.trim(), pw=document.getElementById("loginPass").value, err=document.getElementById("loginErr");
   err.style.color="var(--red)";
   if(!em||!pw){err.textContent="Bitte E-Mail und Passwort eingeben.";return;}
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){err.textContent="Bitte eine gültige E-Mail eingeben.";return;}
-  if(signupMode){err.style.color="var(--green)";err.textContent="Registrierung eingegangen. Freigabe durch t.atassi2591@gmail.com ausstehend. (Demo: Anmeldung erfolgt.)";setTimeout(()=>enterApp(em),900);return;}
-  enterApp(em);
+  if(signupMode){err.style.color="var(--green)";err.textContent="Registrierung eingegangen. Die Freigabe erteilt der Inhaber (t.atassi2591@gmail.com).";return;}
+  if(!sb){err.textContent="Verbindung zu Supabase nicht verfügbar. Bitte Internetverbindung prüfen.";return;}
+  const btn=document.getElementById("loginBtn");btn.disabled=true;const old=btn.textContent;btn.textContent="Anmelden …";
+  try{
+    const {data,error}=await sb.auth.signInWithPassword({email:em,password:pw});
+    if(error){err.textContent=(error.status===400?"E-Mail oder Passwort ist falsch.":("Anmeldung fehlgeschlagen: "+error.message));return;}
+    await enterReal(data.user);
+  }catch(e){err.textContent="Netzwerkfehler bei der Anmeldung.";}
+  finally{btn.disabled=false;btn.textContent=old;}
+}
+/* Echtes Login: Rolle aus profiles laden, Umschalter ausblenden */
+async function enterReal(user){
+  const err=document.getElementById("loginErr");
+  const {data:prof,error}=await sb.from("profiles").select("role,name,email").eq("id",user.id).single();
+  if(error||!prof||!prof.role){err.style.color="var(--red)";err.textContent="Kein Profil mit Rolle hinterlegt. Bitte den Inhaber kontaktieren.";try{await sb.auth.signOut();}catch(e){}return;}
+  realMode=true;account=prof.email||user.email||"";
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").classList.add("on");
+  document.getElementById("acctEmail").textContent=account;
+  document.getElementById("roleSwitchWrap").style.display="none";      // Rollen-Umschalter im Echtbetrieb aus
+  if(ROLES[prof.role])document.getElementById("roleSelect").value=prof.role;
+  switchRole(prof.role);
+  boot();
+}
+/* Bereits bestehende Session beim Laden fortsetzen */
+async function initAuth(){
+  if(!sb)return;
+  try{const {data:{session}}=await sb.auth.getSession();if(session&&session.user){await enterReal(session.user);}}catch(e){}
 }
 function demoEnter(){enterApp("demo@cockpit.local");}
 function enterApp(email){
+  realMode=false;
   account=email;
   document.getElementById("login").style.display="none";
   document.getElementById("app").classList.add("on");
   document.getElementById("acctEmail").textContent=email;
+  document.getElementById("roleSwitchWrap").style.display="";
   document.getElementById("roleSelect").value="ta";switchRole("ta");
   boot();
 }
-function logout(){document.getElementById("app").classList.remove("on");document.getElementById("login").style.display="flex";document.getElementById("loginPass").value="";}
+function logout(){
+  if(realMode&&sb){try{sb.auth.signOut();}catch(e){}}
+  realMode=false;
+  document.getElementById("roleSwitchWrap").style.display="";
+  document.getElementById("app").classList.remove("on");
+  document.getElementById("login").style.display="flex";
+  document.getElementById("loginPass").value="";
+}
 
 /* ===== ROLES ===== */
 const ROLES={
@@ -815,6 +860,9 @@ tick();setInterval(tick,15000);
 /* ===== RENDER ALL ===== */
 function renderAll(){renderOverview();renderProjects();renderCalendar();renderChat();renderInbox();renderSettings();updateKpis();updateChatCount();renderNotifs();if(curBoard&&document.getElementById("view-board").classList.contains("visible"))renderBoardPage();}
 function boot(){primeReminders();renderAll();}
+
+/* Beim Laden bestehende Supabase-Session prüfen und ggf. direkt anmelden */
+initAuth();
 </script>
 </body>
 </html>
