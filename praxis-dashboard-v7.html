@@ -671,9 +671,15 @@ async function toggleTodo(id){const t=todos.find(x=>x.id===id);if(!t)return;cons
 /* ===== TODO DETAIL MODAL ===== */
 let detailId=null;
 function openDetail(id){detailId=id;const t=todos.find(x=>x.id===id);if(!t)return;document.getElementById("dTitle").value=t.t;document.getElementById("dPrio").value=t.p;document.getElementById("dDate").value=t.d||"";document.getElementById("dNotes").value=t.notes||"";document.getElementById("dBoard").innerHTML=BOARDS.map(b=>`<option value="${b.id}" ${b.id===t.board?'selected':''}>${esc(b.name)}</option>`).join("");renderDFiles();document.getElementById("detailBg").classList.add("open");}
-function renderDFiles(){const t=todos.find(x=>x.id===detailId);document.getElementById("dFiles").innerHTML=(t.files||[]).map((f,i)=>`<span class="chip"><a href="${f.url}" download="${esc(f.name)}">${esc(f.name)}</a><span style="color:var(--dim);font-size:10px">${f.size}</span><span class="x" onclick="removeFile(${i})">×</span></span>`).join("")||'<span style="color:var(--dim);font-size:12px">Keine Dateien</span>';}
-function addFiles(e){const t=todos.find(x=>x.id===detailId);[...e.target.files].forEach(f=>t.files.push({name:f.name,size:(f.size/1024).toFixed(0)+" KB",url:URL.createObjectURL(f)}));e.target.value="";renderDFiles();}
-function removeFile(i){todos.find(x=>x.id===detailId).files.splice(i,1);renderDFiles();}
+function renderDFiles(){const t=todos.find(x=>x.id===detailId);document.getElementById("dFiles").innerHTML=(t.files||[]).map((f,i)=>fileChip(f,i,"removeFile")).join("")||'<span style="color:var(--dim);font-size:12px">Keine Dateien</span>';}
+async function addFiles(e){const t=todos.find(x=>x.id===detailId);if(!t)return;const fs=[...e.target.files];e.target.value="";
+  if(realMode&&sb){for(const f of fs){const meta=await uploadToStorage(f);if(meta)t.files.push(meta);}await sb.from("todos").update({files:t.files}).eq("id",t.id);}
+  else{fs.forEach(f=>t.files.push({name:f.name,size:(f.size/1024).toFixed(0)+" KB",url:URL.createObjectURL(f)}));}
+  renderDFiles();}
+async function removeFile(i){const t=todos.find(x=>x.id===detailId);if(!t)return;const f=t.files[i];
+  if(realMode&&sb){if(f&&f.path)await removeFromStorage(f.path);t.files.splice(i,1);await sb.from("todos").update({files:t.files}).eq("id",t.id);}
+  else{t.files.splice(i,1);}
+  renderDFiles();}
 async function saveDetail(){const t=todos.find(x=>x.id===detailId);if(!t)return;
   const nt=document.getElementById("dTitle").value.trim()||t.t,np=document.getElementById("dPrio").value,nd=document.getElementById("dDate").value,nn=document.getElementById("dNotes").value,nb=document.getElementById("dBoard").value;
   if(realMode&&sb){const {error}=await sb.from("todos").update({title:nt,priority:np,due_date:nd||null,notes:nn,board_id:nb}).eq("id",detailId);if(error){toast("⚠️","Konnte Änderungen nicht speichern.");return;}}
@@ -732,9 +738,13 @@ function renderProjectPage(){const p=projById(curProj);if(!p)return;
     </div>`;
   renderPPFiles();
 }
-function renderPPFiles(){const p=projById(curProj);if(!p)return;const el=document.getElementById("ppFiles");if(!el)return;el.innerHTML=(p.files||[]).map((f,i)=>`<span class="chip"><a href="${f.url}" download="${esc(f.name)}">${esc(f.name)}</a><span style="color:var(--dim);font-size:10px">${f.size}</span><span class="x" onclick="removeProjFile(${i})">×</span></span>`).join("")||'<span style="color:var(--dim);font-size:12px">Keine Dateien</span>';}
-function addProjFiles(e){const p=projById(curProj);[...e.target.files].forEach(f=>p.files.push({name:f.name,size:(f.size/1024).toFixed(0)+" KB",url:URL.createObjectURL(f)}));e.target.value="";renderProjects();}
-function removeProjFile(i){projById(curProj).files.splice(i,1);renderProjects();}
+function renderPPFiles(){const p=projById(curProj);if(!p)return;const el=document.getElementById("ppFiles");if(!el)return;el.innerHTML=(p.files||[]).map((f,i)=>fileChip(f,i,"removeProjFile")).join("")||'<span style="color:var(--dim);font-size:12px">Keine Dateien</span>';}
+async function addProjFiles(e){const p=projById(curProj);if(!p)return;const fs=[...e.target.files];e.target.value="";
+  if(realMode&&sb){for(const f of fs){const meta=await uploadToStorage(f);if(meta)p.files.push(meta);}await sb.from("projects").update({files:p.files}).eq("id",p.id);renderPPFiles();}
+  else{fs.forEach(f=>p.files.push({name:f.name,size:(f.size/1024).toFixed(0)+" KB",url:URL.createObjectURL(f)}));renderProjects();}}
+async function removeProjFile(i){const p=projById(curProj);if(!p)return;const f=p.files[i];
+  if(realMode&&sb){if(f&&f.path)await removeFromStorage(f.path);p.files.splice(i,1);await sb.from("projects").update({files:p.files}).eq("id",p.id);renderPPFiles();}
+  else{p.files.splice(i,1);renderProjects();}}
 const PROJ_COL={n:"name",loc:"loc",deadline:"deadline",note:"note",notes:"notes"};
 async function projField(k,v){const p=projById(curProj);if(!p)return;
   if(realMode&&sb&&PROJ_COL[k]){const val=(k==="deadline")?(v||null):v;const {error}=await sb.from("projects").update({[PROJ_COL[k]]:val}).eq("id",curProj);if(error){toast("⚠️","Konnte nicht speichern.");return;}}
@@ -930,7 +940,24 @@ function tick(){document.getElementById("clock").textContent=new Date().toLocale
 tick();setInterval(tick,15000);
 
 /* ===== SUPABASE DATA LOADING ===== */
-function rowToTodo(r){return {id:r.id,board:r.board_id,t:r.title,p:r.priority||"mittel",d:r.due_date||"",done:!!r.done,notes:r.notes||"",files:[]};}
+/* ---- Supabase Storage (Datei-Anhänge) ---- */
+const STORAGE_BUCKET="attachments";
+function storagePath(f){return Date.now()+"_"+Math.random().toString(36).slice(2,8)+"_"+((f&&f.name)||"datei").replace(/[^\w.\-]+/g,"_");}
+async function uploadToStorage(f){
+  const path=storagePath(f);
+  const {error}=await sb.storage.from(STORAGE_BUCKET).upload(path,f);
+  if(error){toast("⚠️","Upload fehlgeschlagen: "+f.name);return null;}
+  return {name:f.name,size:(f.size/1024).toFixed(0)+" KB",path};
+}
+async function openStored(path){
+  const {data,error}=await sb.storage.from(STORAGE_BUCKET).createSignedUrl(path,3600);
+  if(error||!data){toast("⚠️","Datei-Link konnte nicht erstellt werden.");return;}
+  window.open(data.signedUrl,"_blank");
+}
+async function removeFromStorage(path){try{await sb.storage.from(STORAGE_BUCKET).remove([path]);}catch(e){}}
+function fileChip(f,i,rm){const link=f.path?`<a onclick="openStored('${f.path}')" style="cursor:pointer">${esc(f.name)}</a>`:`<a href="${f.url}" download="${esc(f.name)}">${esc(f.name)}</a>`;return `<span class="chip">${link}<span style="color:var(--dim);font-size:10px">${f.size||''}</span><span class="x" onclick="${rm}(${i})">×</span></span>`;}
+
+function rowToTodo(r){return {id:r.id,board:r.board_id,t:r.title,p:r.priority||"mittel",d:r.due_date||"",done:!!r.done,notes:r.notes||"",files:Array.isArray(r.files)?r.files:[]};}
 async function loadBoards(){
   const {data:bs,error}=await sb.from("boards").select("id,name,priv,sort").order("sort");
   if(error){console.error("boards",error);toast("⚠️","Listen konnten nicht geladen werden.");return;}
@@ -943,7 +970,7 @@ async function loadTodos(){
   if(error){console.error("todos",error);toast("⚠️","Aufgaben konnten nicht geladen werden.");return;}
   todos=(data||[]).map(rowToTodo);
 }
-function rowToProject(r){return {id:r.id,n:r.name,loc:r.loc||"",s:r.status||"laufend",pct:r.pct||0,deadline:r.deadline||"",note:r.note||"",notes:r.notes||"",files:[]};}
+function rowToProject(r){return {id:r.id,n:r.name,loc:r.loc||"",s:r.status||"laufend",pct:r.pct||0,deadline:r.deadline||"",note:r.note||"",notes:r.notes||"",files:Array.isArray(r.files)?r.files:[]};}
 async function loadProjects(){
   const {data,error}=await sb.from("projects").select("*").order("sort");
   if(error){console.error("projects",error);toast("⚠️","Projekte konnten nicht geladen werden.");return;}
