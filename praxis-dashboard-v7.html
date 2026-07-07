@@ -850,16 +850,22 @@ function renderChat(){
   if(!chatContact){top.textContent="Kontakt wählen";box.innerHTML='<div style="color:var(--dim);font-size:13px;margin:auto">Wählen Sie links einen Kontakt.</div>';renderPending();return;}
   top.textContent=ROLES[chatContact].name;
   const th=messages[pairId(currentRole,chatContact)]||[];
-  box.innerHTML=th.length?th.map(m=>`<div class="bubble ${m.from===currentRole?'me':'them'}"><div>${esc(m.text)}</div>${m.files&&m.files.length?`<div class="att">${m.files.map(f=>`<span class="chip"><a href="${f.url}" download="${esc(f.name)}">📎 ${esc(f.name)}</a></span>`).join(" ")}</div>`:''}<div class="bt">${m.from===currentRole?'Sie':ROLES[m.from].short} · ${m.time}</div></div>`).join(""):'<div style="color:var(--dim);font-size:13px;margin:auto">Noch keine Nachrichten.</div>';
+  box.innerHTML=th.length?th.map(m=>`<div class="bubble ${m.from===currentRole?'me':'them'}"><div>${esc(m.text)}</div>${m.files&&m.files.length?`<div class="att">${m.files.map(f=>`<span class="chip">${f.path?`<a onclick="openStored('${f.path}')" style="cursor:pointer">📎 ${esc(f.name)}</a>`:`<a href="${f.url}" download="${esc(f.name)}">📎 ${esc(f.name)}</a>`}</span>`).join(" ")}</div>`:''}<div class="bt">${m.from===currentRole?'Sie':ROLES[m.from].short} · ${m.time}</div></div>`).join(""):'<div style="color:var(--dim);font-size:13px;margin:auto">Noch keine Nachrichten.</div>';
   box.scrollTop=box.scrollHeight;renderPending();
 }
 function openChat(r){chatContact=r;chatPend=[];renderChat();}
-function chatAttach(e){[...e.target.files].forEach(f=>chatPend.push({name:f.name,size:(f.size/1024).toFixed(0)+" KB",url:URL.createObjectURL(f)}));e.target.value="";renderPending();}
+function chatAttach(e){[...e.target.files].forEach(f=>chatPend.push({name:f.name,size:(f.size/1024).toFixed(0)+" KB",file:f}));e.target.value="";renderPending();}
 function renderPending(){const el=document.getElementById("chatPending");if(!el)return;el.innerHTML=chatPend.length?'<div class="chips">'+chatPend.map((f,i)=>`<span class="chip">📎 ${esc(f.name)}<span class="x" onclick="chatPend.splice(${i},1);renderPending()">×</span></span>`).join("")+'</div>':'';}
 async function sendMsg(){if(!chatContact)return;const inp=document.getElementById("chatText"),txt=inp.value.trim();if(!txt&&!chatPend.length)return;
   const key=pairId(currentRole,chatContact),time=new Date().toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});
-  if(realMode&&sb){const {error}=await sb.from("messages").insert({from_role:currentRole,to_role:chatContact,body:txt});if(error){toast("⚠️","Nachricht konnte nicht gesendet werden.");return;}}
-  messages[key]=messages[key]||[];messages[key].push({from:currentRole,text:txt,files:chatPend.slice(),time});
+  let files=[];
+  if(realMode&&sb){
+    for(const p of chatPend){if(p.file){const meta=await uploadToStorage(p.file);if(meta)files.push(meta);}}
+    const {error}=await sb.from("messages").insert({from_role:currentRole,to_role:chatContact,body:txt,files});if(error){toast("⚠️","Nachricht konnte nicht gesendet werden.");return;}
+  }else{
+    files=chatPend.map(p=>({name:p.name,size:p.size,url:p.file?URL.createObjectURL(p.file):p.url}));
+  }
+  messages[key]=messages[key]||[];messages[key].push({from:currentRole,text:txt,files,time});
   inp.value="";chatPend=[];notifyIfOther("💬","#3ED6FF",ROLES[currentRole].name+" hat Ihnen geschrieben.");renderChat();updateChatCount();}
 /* Chat: Live-Updates via Supabase Realtime (WebSocket); Polling nur als Fallback, falls Realtime nicht verfügbar */
 let msgChannel=null, msgPollTimer=null;
@@ -872,7 +878,7 @@ function subscribeMessages(){
       const r=payload&&payload.new;if(!r)return;
       if(r.from_role===currentRole)return;                       // eigene Nachrichten sind lokal schon sichtbar
       const k=pairId(r.from_role,r.to_role);
-      (messages[k]=messages[k]||[]).push({from:r.from_role,text:r.body||"",files:[],time:new Date(r.created_at).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})});
+      (messages[k]=messages[k]||[]).push({from:r.from_role,text:r.body||"",files:Array.isArray(r.files)?r.files:[],time:new Date(r.created_at).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})});
       updateChatCount();
       if(document.getElementById("view-chat").classList.contains("visible"))renderChat();
       if(ROLES[r.from_role])pushNotif("💬","#3ED6FF",ROLES[r.from_role].name+" hat Ihnen geschrieben.");
@@ -982,7 +988,7 @@ async function loadEvents(){
   if(error){console.error("events",error);toast("⚠️","Termine konnten nicht geladen werden.");return;}
   events=(data||[]).map(rowToEvent);
 }
-function rowsToMessages(rows){const o={};(rows||[]).forEach(r=>{const k=pairId(r.from_role,r.to_role);(o[k]=o[k]||[]).push({from:r.from_role,text:r.body||"",files:[],time:new Date(r.created_at).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})});});return o;}
+function rowsToMessages(rows){const o={};(rows||[]).forEach(r=>{const k=pairId(r.from_role,r.to_role);(o[k]=o[k]||[]).push({from:r.from_role,text:r.body||"",files:Array.isArray(r.files)?r.files:[],time:new Date(r.created_at).toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"})});});return o;}
 async function loadMessages(){
   const {data,error}=await sb.from("messages").select("*").order("created_at");
   if(error){console.error("messages",error);return;}
