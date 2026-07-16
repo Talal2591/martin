@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zahn- und Implantatzentrum Barsinghausen — Zahnheilkunde mit Anspruch</title>
+<meta name="description" content="Zahn- und Implantatzentrum Barsinghausen: Implantologie, Oralchirurgie, ästhetische Zahnheilkunde und Zahnersatz — mit Ruhe, Erfahrung und höchstem Anspruch. Egestorfer Str. 4, 30890 Barsinghausen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#faf7f1;
+    --paper-deep:#f3eee3;
+    --ink:#26231e;
+    --ink-soft:#57503f;
+    --pine:#1e3a2e;
+    --pine-deep:#16291f;
+    --bronze:#a3814f;
+    --bronze-soft:#c2a06b;
+    --hairline:#e3dac7;
+    --display:"Cormorant Garamond","Cormorant",Georgia,"Times New Roman",serif;
+    --body:"EB Garamond",Georgia,"Times New Roman",serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+  }
+  body{
+    font-family:var(--body);
+    font-size:19px;
+    line-height:1.75;
+    color:var(--ink);
+    background:var(--paper);
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--bronze-soft);color:#fff}
+  a{color:var(--pine)}
+  a:focus-visible,button:focus-visible{outline:3px solid var(--bronze);outline-offset:3px;border-radius:2px}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+  /* ---------- Kicker / Labels ---------- */
+  .kicker{
+    font-family:var(--body);
+    font-size:13px;
+    letter-spacing:.32em;
+    text-transform:uppercase;
+    color:var(--bronze);
+    display:flex;align-items:center;gap:18px;
+  }
+  .kicker::before{content:"";width:44px;height:1px;background:var(--bronze-soft);flex:none}
+  .kicker.center{justify-content:center}
+  .kicker.center::after{content:"";width:44px;height:1px;background:var(--bronze-soft);flex:none}
+
+  /* ---------- Topbar ---------- */
+  .topbar{background:var(--pine-deep);color:#e9e2d2;font-size:15px}
+  .topbar .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;padding-top:9px;padding-bottom:9px;flex-wrap:wrap}
+  .topbar a{color:#f2ecd9;text-decoration:none;letter-spacing:.04em}
+  .topbar a:hover{color:var(--bronze-soft)}
+  .topbar .sep{opacity:.35;margin:0 10px}
+
+  /* ---------- Header ---------- */
+  header.site{
+    position:sticky;top:0;z-index:50;
+    background:rgba(250,247,241,.94);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--hairline);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:18px 0}
+  .brand{display:flex;align-items:center;gap:16px;text-decoration:none;color:var(--ink)}
+  .emblem{
+    width:52px;height:52px;flex:none;border-radius:50%;
+    border:1px solid var(--bronze);
+    display:grid;place-items:center;position:relative;
+  }
+  .emblem::after{content:"";position:absolute;inset:3px;border-radius:50%;border:1px solid var(--bronze-soft);opacity:.55}
+  .emblem span{font-family:var(--display);font-weight:600;font-size:19px;letter-spacing:.06em;color:var(--pine)}
+  .brand-name{font-family:var(--display);font-size:22px;font-weight:600;letter-spacing:.02em;line-height:1.15}
+  .brand-sub{font-size:12.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--ink-soft)}
+  nav.main{display:flex;align-items:center;gap:34px}
+  nav.main a{
+    text-decoration:none;color:var(--ink);font-size:17px;letter-spacing:.03em;
+    border-bottom:1px solid transparent;padding-bottom:3px;transition:border-color .2s,color .2s;
+  }
+  nav.main a:hover{color:var(--pine);border-bottom-color:var(--bronze)}
+  .btn{
+    display:inline-block;text-decoration:none;font-family:var(--body);
+    font-size:16px;letter-spacing:.14em;text-transform:uppercase;
+    padding:15px 30px;border:1px solid var(--pine);
+    transition:background .25s,color .25s;text-align:center;
+  }
+  .btn-solid{background:var(--pine);color:#f5f1e6}
+  .btn-solid:hover{background:var(--pine-deep)}
+  .btn-ghost{color:var(--pine);background:transparent}
+  .btn-ghost:hover{background:var(--pine);color:#f5f1e6}
+  .nav .btn{padding:12px 24px;font-size:14px}
+  .menu-toggle{display:none;background:none;border:1px solid var(--hairline);padding:10px 14px;font-family:var(--body);font-size:15px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);cursor:pointer}
+
+  /* ---------- Hero ---------- */
+  .hero{
+    position:relative;overflow:hidden;
+    background:
+      radial-gradient(1100px 500px at 85% -10%, rgba(163,129,79,.10), transparent 60%),
+      linear-gradient(var(--paper), var(--paper-deep));
+    border-bottom:1px solid var(--hairline);
+  }
+  .hero .wrap{padding-top:96px;padding-bottom:104px;position:relative}
+  .hero h1{
+    font-family:var(--display);font-weight:500;
+    font-size:clamp(42px, 6.4vw, 76px);
+    line-height:1.08;letter-spacing:.005em;
+    max-width:15ch;margin:26px 0 28px;
+  }
+  .hero h1 em{font-style:italic;color:var(--pine)}
+  .hero p.lede{max-width:56ch;font-size:21px;color:var(--ink-soft);margin-bottom:42px}
+  .hero .actions{display:flex;gap:18px;flex-wrap:wrap}
+  .hero-note{margin-top:40px;font-size:16px;color:var(--ink-soft);font-style:italic}
+  .hero-orn{
+    position:absolute;right:-60px;top:50%;transform:translateY(-50%);
+    width:460px;height:460px;opacity:.5;pointer-events:none;
+  }
+  @media (max-width:900px){.hero-orn{display:none}}
+
+  /* ---------- Fleuron divider ---------- */
+  .fleuron{display:flex;align-items:center;justify-content:center;gap:20px;padding:0}
+  .fleuron::before,.fleuron::after{content:"";height:1px;width:min(160px,26vw);background:var(--hairline)}
+  .fleuron svg{flex:none}
+
+  /* ---------- Sections ---------- */
+  section{padding:104px 0}
+  h2{
+    font-family:var(--display);font-weight:500;
+    font-size:clamp(34px,4.4vw,52px);line-height:1.12;
+    margin:22px 0 26px;letter-spacing:.005em;
+  }
+  h2 em{font-style:italic;color:var(--pine)}
+  .section-head{max-width:720px}
+  .section-head.center{margin:0 auto;text-align:center}
+  .section-head p{color:var(--ink-soft);font-size:20px}
+
+  /* ---------- Philosophie ---------- */
+  .philo{display:grid;grid-template-columns:1.1fr .9fr;gap:72px;align-items:start}
+  .dropcap::first-letter{
+    font-family:var(--display);font-size:76px;font-weight:500;color:var(--pine);
+    float:left;line-height:.78;padding:8px 14px 0 0;
+  }
+  .philo .quote{
+    border-left:2px solid var(--bronze);padding:8px 0 8px 30px;margin-top:36px;
+    font-family:var(--display);font-style:italic;font-size:26px;line-height:1.45;color:var(--pine);
+  }
+  .quote-attr{display:block;margin-top:14px;font-family:var(--body);font-style:normal;font-size:14px;letter-spacing:.24em;text-transform:uppercase;color:var(--bronze)}
+  .values{display:grid;gap:0;border-top:1px solid var(--hairline)}
+  .value{padding:30px 0;border-bottom:1px solid var(--hairline);display:grid;grid-template-columns:64px 1fr;gap:20px;align-items:baseline}
+  .value .num{font-family:var(--display);font-size:30px;color:var(--bronze);font-style:italic}
+  .value h3{font-family:var(--display);font-weight:600;font-size:23px;margin-bottom:6px}
+  .value p{font-size:17.5px;color:var(--ink-soft)}
+
+  /* ---------- Leistungen ---------- */
+  .services-band{background:var(--pine-deep);color:#efe9d8;border-top:1px solid var(--hairline)}
+  .services-band .kicker{color:var(--bronze-soft)}
+  .services-band h2 em{color:var(--bronze-soft)}
+  .services-band .section-head p{color:#c9c1ab}
+  .services{
+    margin-top:64px;display:grid;grid-template-columns:repeat(3,1fr);
+    border-top:1px solid rgba(233,226,210,.18);border-left:1px solid rgba(233,226,210,.18);
+  }
+  .service{
+    padding:44px 38px 48px;
+    border-right:1px solid rgba(233,226,210,.18);
+    border-bottom:1px solid rgba(233,226,210,.18);
+    transition:background .3s;
+  }
+  .service:hover{background:rgba(233,226,210,.05)}
+  .service .roman{font-family:var(--display);font-style:italic;font-size:20px;color:var(--bronze-soft);letter-spacing:.08em}
+  .service h3{font-family:var(--display);font-weight:500;font-size:27px;margin:14px 0 12px;line-height:1.2}
+  .service p{font-size:17px;line-height:1.7;color:#c9c1ab}
+
+  /* ---------- Zahnärzte ---------- */
+  .doctors{margin-top:70px;display:grid;grid-template-columns:repeat(4,1fr);gap:34px}
+  .doctor{text-align:center;padding:0 6px}
+  .portrait{
+    width:150px;height:150px;margin:0 auto 26px;border-radius:50%;
+    border:1px solid var(--bronze);display:grid;place-items:center;position:relative;
+    background:linear-gradient(160deg,var(--paper-deep),#ece4d2);
+  }
+  .portrait::after{content:"";position:absolute;inset:6px;border-radius:50%;border:1px solid var(--bronze-soft);opacity:.5}
+  .portrait span{font-family:var(--display);font-size:42px;font-weight:500;color:var(--pine);letter-spacing:.04em}
+  .doctor h3{font-family:var(--display);font-weight:600;font-size:24px;line-height:1.25}
+  .doctor .role{margin-top:10px;font-size:13.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--bronze)}
+  .doctor p{margin-top:14px;font-size:17px;color:var(--ink-soft);line-height:1.65}
+
+  /* ---------- Praxis / Ausstattung ---------- */
+  .praxis-band{background:var(--paper-deep);border-top:1px solid var(--hairline);border-bottom:1px solid var(--hairline)}
+  .praxis-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:72px;align-items:center}
+  .praxis-list{border-top:1px solid var(--hairline)}
+  .praxis-item{display:grid;grid-template-columns:30px 1fr;gap:18px;padding:24px 0;border-bottom:1px solid var(--hairline);align-items:start}
+  .praxis-item svg{margin-top:7px}
+  .praxis-item h3{font-family:var(--display);font-weight:600;font-size:22px;margin-bottom:4px}
+  .praxis-item p{font-size:17px;color:var(--ink-soft)}
+
+  /* ---------- Kontakt ---------- */
+  .contact-grid{margin-top:64px;display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--hairline);background:#fffdf8}
+  .contact-col{padding:56px 60px}
+  .contact-col + .contact-col{border-left:1px solid var(--hairline)}
+  .contact-col h3{font-family:var(--display);font-weight:600;font-size:26px;margin-bottom:26px}
+  .contact-line{display:grid;grid-template-columns:120px 1fr;gap:14px;padding:13px 0;border-bottom:1px solid var(--hairline);font-size:18px}
+  .contact-line:last-of-type{border-bottom:none}
+  .contact-line .lbl{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--bronze);padding-top:5px}
+  .contact-line a{text-decoration:none;border-bottom:1px solid var(--bronze-soft)}
+  .contact-line a:hover{color:var(--bronze)}
+  .phone-big{font-family:var(--display);font-size:34px;font-weight:500;color:var(--pine);text-decoration:none;display:inline-block;margin:4px 0 10px}
+  .phone-big:hover{color:var(--bronze)}
+  table.hours{width:100%;border-collapse:collapse;font-size:18px}
+  table.hours td{padding:13px 0;border-bottom:1px solid var(--hairline);vertical-align:top}
+  table.hours td:first-child{font-size:13px;letter-spacing:.22em;text-transform:uppercase;color:var(--bronze);width:120px;padding-top:17px}
+  table.hours tr:last-child td{border-bottom:none}
+  .contact-cta{margin-top:34px}
+  .barrier-note{margin-top:26px;font-style:italic;color:var(--ink-soft);font-size:16.5px}
+
+  /* ---------- Footer ---------- */
+  footer{background:var(--pine-deep);color:#b9b19c;padding:64px 0 44px;font-size:16px}
+  .foot{display:flex;justify-content:space-between;gap:32px;flex-wrap:wrap;align-items:flex-start}
+  .foot .brand-name{color:#efe9d8}
+  .foot .brand-sub{color:#8f886f}
+  .foot nav{display:flex;gap:28px;flex-wrap:wrap}
+  .foot a{color:#d8d1bb;text-decoration:none;border-bottom:1px solid transparent}
+  .foot a:hover{border-bottom-color:var(--bronze-soft)}
+  .foot-rule{border:none;border-top:1px solid rgba(233,226,210,.15);margin:40px 0 26px}
+  .foot-bottom{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:15px;color:#8f886f}
+
+  /* ---------- Reveal ---------- */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .8s ease,transform .8s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- Responsive ---------- */
+  @media (max-width:1000px){
+    .services{grid-template-columns:repeat(2,1fr)}
+    .doctors{grid-template-columns:repeat(2,1fr);gap:48px 28px}
+    .philo,.praxis-grid{grid-template-columns:1fr;gap:48px}
+  }
+  @media (max-width:760px){
+    body{font-size:18px}
+    section{padding:72px 0}
+    .hero .wrap{padding-top:64px;padding-bottom:72px}
+    .topbar .wrap{justify-content:center;text-align:center}
+    .menu-toggle{display:block}
+    nav.main{
+      display:none;position:absolute;left:0;right:0;top:100%;
+      background:var(--paper);border-bottom:1px solid var(--hairline);
+      flex-direction:column;gap:0;padding:10px 24px 24px;
+    }
+    nav.main.open{display:flex}
+    nav.main a{padding:14px 0;font-size:19px;border-bottom:1px solid var(--hairline);width:100%}
+    nav.main .btn{margin-top:18px;border-bottom:1px solid var(--pine)}
+    .services{grid-template-columns:1fr}
+    .doctors{grid-template-columns:1fr;gap:56px}
+    .contact-grid{grid-template-columns:1fr}
+    .contact-col{padding:40px 28px}
+    .contact-col + .contact-col{border-left:none;border-top:1px solid var(--hairline)}
+  }
+</style>
+</head>
+<body>
+
+<!-- Topbar -->
+<div class="topbar">
+  <div class="wrap">
+    <div>
+      <a href="tel:+4951059397">Telefon (05105) 93 97</a>
+      <span class="sep">·</span>
+      <a href="mailto:empfang@zizb.de">empfang@zizb.de</a>
+    </div>
+    <div>Egestorfer Straße 4 · 30890 Barsinghausen</div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="site">
+  <div class="wrap nav">
+    <a class="brand" href="#start" aria-label="Zahn- und Implantatzentrum Barsinghausen — zur Startseite">
+      <div class="emblem" aria-hidden="true"><span>Z</span></div>
+      <div>
+        <div class="brand-name">Zahn- &amp; Implantatzentrum</div>
+        <div class="brand-sub">Barsinghausen</div>
+      </div>
+    </a>
+    <button class="menu-toggle" aria-expanded="false" aria-controls="mainnav" onclick="toggleMenu(this)">Menü</button>
+    <nav class="main" id="mainnav" aria-label="Hauptnavigation">
+      <a href="#praxis">Praxis</a>
+      <a href="#leistungen">Leistungen</a>
+      <a href="#zahnaerzte">Zahnärzte</a>
+      <a href="#kontakt">Kontakt</a>
+      <a class="btn btn-solid" href="#kontakt">Termin vereinbaren</a>
+    </nav>
+  </div>
+</header>
+
+<!-- Hero -->
+<div class="hero" id="start">
+  <div class="wrap">
+    <p class="kicker">Seit über 30 Jahren in Barsinghausen</p>
+    <h1>Zahnheilkunde<br>mit <em>Ruhe</em>, Sorgfalt<br>und Anspruch.</h1>
+    <p class="lede">Im Herzen von Barsinghausen verbinden wir klassische zahnärztliche Sorgfalt mit moderner Implantologie und ästhetischer Zahnmedizin — persönlich, unaufgeregt und mit Zeit für Sie.</p>
+    <div class="actions">
+      <a class="btn btn-solid" href="#kontakt">Termin vereinbaren</a>
+      <a class="btn btn-ghost" href="#leistungen">Unsere Leistungen</a>
+    </div>
+    <p class="hero-note">Barrierefrei erreichbar · Persönliche Beratung · Modernste 3D-Diagnostik</p>
+    <svg class="hero-orn" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+      <circle cx="200" cy="200" r="196" stroke="#a3814f" stroke-width="1" opacity=".5"/>
+      <circle cx="200" cy="200" r="168" stroke="#a3814f" stroke-width="1" opacity=".35"/>
+      <circle cx="200" cy="200" r="120" stroke="#1e3a2e" stroke-width="1" opacity=".3"/>
+      <path d="M200 92 L212 188 L308 200 L212 212 L200 308 L188 212 L92 200 L188 188 Z" fill="#a3814f" opacity=".28"/>
+    </svg>
+  </div>
+</div>
+
+<!-- Philosophie -->
+<section id="praxis">
+  <div class="wrap">
+    <div class="philo">
+      <div class="reveal">
+        <p class="kicker">Unsere Praxis</p>
+        <h2>Eine Praxis, die sich <em>Zeit</em> nimmt.</h2>
+        <p class="dropcap">Gute Zahnmedizin beginnt mit Zuhören. Seit über drei Jahrzehnten begleiten wir Patientinnen und Patienten in Barsinghausen und der Region — viele davon über Generationen hinweg. Was uns auszeichnet, ist die Verbindung aus langjähriger chirurgischer Erfahrung, moderner Technik und einer Atmosphäre, in der man sich gut aufgehoben fühlt.</p>
+        <p style="margin-top:20px">Ob hochwertiger Zahnersatz, Implantologie oder ästhetische Behandlung: Wir beraten ausführlich, erklären verständlich und entscheiden gemeinsam mit Ihnen — ohne Zeitdruck.</p>
+        <blockquote class="quote">
+          „Wertigkeit zeigt sich nicht im Lauten, sondern in der Sorgfalt jedes einzelnen Handgriffs.“
+          <span class="quote-attr">Unser Selbstverständnis</span>
+        </blockquote>
+      </div>
+      <div class="values reveal">
+        <div class="value">
+          <span class="num">I.</span>
+          <div>
+            <h3>Erfahrung, die trägt</h3>
+            <p>Über 30 Jahre Implantologie und Zahnersatz — chirurgische Kompetenz bis hin zur Mund-, Kiefer- und Gesichtschirurgie.</p>
+          </div>
+        </div>
+        <div class="value">
+          <span class="num">II.</span>
+          <div>
+            <h3>Modernste Diagnostik</h3>
+            <p>Digitales 3D-Röntgen und CEREC-CAD/CAM-Technologie für präzise Planung und Zahnersatz in höchster Qualität.</p>
+          </div>
+        </div>
+        <div class="value">
+          <span class="num">III.</span>
+          <div>
+            <h3>Ruhe &amp; Persönlichkeit</h3>
+            <p>Feste Ansprechpartner, ausführliche Beratung und eine barrierefreie Praxis, in der Sie sich wohlfühlen dürfen.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Leistungen -->
+<section class="services-band" id="leistungen">
+  <div class="wrap">
+    <div class="section-head center">
+      <p class="kicker center">Unsere Leistungen</p>
+      <h2>Das ganze Spektrum — <em>meisterlich</em> ausgeführt.</h2>
+      <p>Von der sanften Prophylaxe bis zur komplexen Implantatversorgung: Alles aus einer Hand, abgestimmt auf Ihre Wünsche und Ihre Lebenssituation.</p>
+    </div>
+    <div class="services">
+      <article class="service reveal">
+        <span class="roman">I.</span>
+        <h3>Implantologie</h3>
+        <p>Feste Zähne statt Prothese: Seit über 30 Jahren setzen wir Implantate — sorgfältig geplant mit 3D-Diagnostik, schonend eingebracht, langlebig versorgt.</p>
+      </article>
+      <article class="service reveal">
+        <span class="roman">II.</span>
+        <h3>Ästhetische Zahnheilkunde</h3>
+        <p>Vollkeramische Kronen, Veneers und unsichtbare Füllungen — für ein natürliches, harmonisches Lächeln, das man Ihnen nicht ansieht, sondern anmerkt.</p>
+      </article>
+      <article class="service reveal">
+        <span class="roman">III.</span>
+        <h3>Hochwertiger Zahnersatz</h3>
+        <p>Kronen, Brücken und Prothesen mit CEREC-CAD/CAM-Präzision — passgenau, biokompatibel und in vielen Fällen in nur einer Sitzung.</p>
+      </article>
+      <article class="service reveal">
+        <span class="roman">IV.</span>
+        <h3>Oral- &amp; Kieferchirurgie</h3>
+        <p>Von der schonenden Zahnentfernung bis zur Parodontalchirurgie — mit fachchirurgischer Expertise bis zur Mund-, Kiefer- und Gesichtschirurgie.</p>
+      </article>
+      <article class="service reveal">
+        <span class="roman">V.</span>
+        <h3>CMD-Therapie</h3>
+        <p>Kopfschmerzen, Verspannungen, Kieferknacken? Wir diagnostizieren und behandeln craniomandibuläre Dysfunktionen — strukturiert und interdisziplinär.</p>
+      </article>
+      <article class="service reveal">
+        <span class="roman">VI.</span>
+        <h3>Prophylaxe &amp; Zahnerhalt</h3>
+        <p>Professionelle Zahnreinigung, Parodontitis-Behandlung und sanfte Wurzelbehandlung — damit Ihre eigenen Zähne so lange wie möglich gesund bleiben.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Zahnärzte -->
+<section id="zahnaerzte">
+  <div class="wrap">
+    <div class="section-head center">
+      <p class="kicker center">Ihre Zahnärzte</p>
+      <h2>Vier Persönlichkeiten. <em>Ein</em> Anspruch.</h2>
+      <p>Erfahrung, Spezialisierung und der gemeinsame Wille, für jeden Patienten die beste Lösung zu finden.</p>
+    </div>
+    <div class="doctors">
+      <article class="doctor reveal">
+        <div class="portrait" aria-hidden="true"><span>SA</span></div>
+        <h3>Dr. Sami Atassi</h3>
+        <p class="role">DDM · Zahnarzt</p>
+        <p>Allgemeine Zahnheilkunde und hochwertiger Zahnersatz — mit Ruhe, Erfahrung und einem offenen Ohr für seine Patienten.</p>
+      </article>
+      <article class="doctor reveal">
+        <div class="portrait" aria-hidden="true"><span>TA</span></div>
+        <h3>Dr. Talal Atassi</h3>
+        <p class="role">DDM · MSc Orale Chirurgie &amp; Implantologie</p>
+        <p>Spezialist für Implantologie und orale Chirurgie — moderne, minimalinvasive Verfahren auf dem Stand der Wissenschaft.</p>
+      </article>
+      <article class="doctor reveal">
+        <div class="portrait" aria-hidden="true"><span>KS</span></div>
+        <h3>Dr. Karin Sauer</h3>
+        <p class="role">Zahnärztin</p>
+        <p>Einfühlsame Behandlung mit besonderem Blick für Zahnerhalt und Ästhetik — geschätzt von Patienten jeden Alters.</p>
+      </article>
+      <article class="doctor reveal">
+        <div class="portrait" aria-hidden="true"><span>HS</span></div>
+        <h3>Dr. Dr. Hans-Rüdiger Sauer</h3>
+        <p class="role">Facharzt für Mund-, Kiefer- &amp; Gesichtschirurgie</p>
+        <p>Doppelte Approbation, jahrzehntelange chirurgische Erfahrung — Sicherheit auch bei anspruchsvollen Eingriffen.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Praxis-Ausstattung -->
+<section class="praxis-band">
+  <div class="wrap">
+    <div class="praxis-grid">
+      <div class="reveal">
+        <p class="kicker">Komfort &amp; Technik</p>
+        <h2>Auf der Höhe der Zeit — <em>zu Ihrem</em> Wohl.</h2>
+        <p style="color:var(--ink-soft)">Wertige Zahnmedizin braucht beides: modernste Technik und eine Umgebung, in der Sie sich gut aufgehoben fühlen. Beides finden Sie bei uns.</p>
+      </div>
+      <div class="praxis-list reveal">
+        <div class="praxis-item">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="10" stroke="#a3814f"/><path d="M6.5 11.5l3 3 6-6.5" stroke="#1e3a2e" stroke-width="1.5" fill="none"/></svg>
+          <div><h3>Digitales 3D-Röntgen</h3><p>Präzise Diagnostik bei minimaler Strahlenbelastung — die Grundlage sicherer Implantatplanung.</p></div>
+        </div>
+        <div class="praxis-item">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="10" stroke="#a3814f"/><path d="M6.5 11.5l3 3 6-6.5" stroke="#1e3a2e" stroke-width="1.5" fill="none"/></svg>
+          <div><h3>CEREC-CAD/CAM</h3><p>Keramischer Zahnersatz, computergefräst in Praxisqualität — oft in nur einem Termin.</p></div>
+        </div>
+        <div class="praxis-item">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="10" stroke="#a3814f"/><path d="M6.5 11.5l3 3 6-6.5" stroke="#1e3a2e" stroke-width="1.5" fill="none"/></svg>
+          <div><h3>Barrierefreier Zugang</h3><p>Unsere Praxis ist behindertengerecht und barrierefrei erreichbar — bequem auch mit Rollator oder Rollstuhl.</p></div>
+        </div>
+        <div class="praxis-item">
+          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><circle cx="11" cy="11" r="10" stroke="#a3814f"/><path d="M6.5 11.5l3 3 6-6.5" stroke="#1e3a2e" stroke-width="1.5" fill="none"/></svg>
+          <div><h3>Zentrale Lage</h3><p>Mitten in Barsinghausen, Egestorfer Straße 4 — gut erreichbar zu Fuß, mit dem Auto und öffentlichen Verkehrsmitteln.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Kontakt -->
+<section id="kontakt">
+  <div class="wrap">
+    <div class="section-head center">
+      <p class="kicker center">Kontakt &amp; Termine</p>
+      <h2>Wir freuen uns <em>auf Sie</em>.</h2>
+      <p>Rufen Sie uns an oder schreiben Sie uns — wir finden gemeinsam einen Termin, der zu Ihnen passt.</p>
+    </div>
+    <div class="contact-grid reveal">
+      <div class="contact-col">
+        <h3>So erreichen Sie uns</h3>
+        <a class="phone-big" href="tel:+4951059397">(05105) 93 97</a>
+        <div class="contact-line">
+          <span class="lbl">Telefon</span>
+          <span><a href="tel:+4951059397">(05105) 93 97</a> · <a href="tel:+495105514205">(05105) 51 42 05</a></span>
+        </div>
+        <div class="contact-line">
+          <span class="lbl">E-Mail</span>
+          <span><a href="mailto:empfang@zizb.de">empfang@zizb.de</a></span>
+        </div>
+        <div class="contact-line">
+          <span class="lbl">Adresse</span>
+          <span>Egestorfer Straße 4<br>30890 Barsinghausen</span>
+        </div>
+        <div class="contact-cta">
+          <a class="btn btn-solid" href="mailto:empfang@zizb.de?subject=Terminanfrage">Termin anfragen</a>
+        </div>
+        <p class="barrier-note">Unsere Praxis ist barrierefrei und behindertengerecht erreichbar.</p>
+      </div>
+      <div class="contact-col">
+        <h3>Sprechzeiten</h3>
+        <table class="hours">
+          <tr><td>Mo · Di · Do</td><td>8:00 – 12:30 Uhr<br>15:00 – 18:00 Uhr</td></tr>
+          <tr><td>Mittwoch</td><td>8:00 – 13:00 Uhr</td></tr>
+          <tr><td>Freitag</td><td>8:00 – 15:00 Uhr</td></tr>
+          <tr><td>Sa · So</td><td>geschlossen</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div class="brand" style="align-items:center">
+        <div class="emblem" aria-hidden="true" style="border-color:#a3814f"><span style="color:#c2a06b">Z</span></div>
+        <div>
+          <div class="brand-name">Zahn- &amp; Implantatzentrum</div>
+          <div class="brand-sub">Barsinghausen</div>
+        </div>
+      </div>
+      <nav aria-label="Fußzeile">
+        <a href="#praxis">Praxis</a>
+        <a href="#leistungen">Leistungen</a>
+        <a href="#zahnaerzte">Zahnärzte</a>
+        <a href="#kontakt">Kontakt</a>
+      </nav>
+    </div>
+    <hr class="foot-rule">
+    <div class="foot-bottom">
+      <span>© 2026 Zahn- und Implantatzentrum Barsinghausen · Egestorfer Str. 4 · 30890 Barsinghausen</span>
+      <span><a href="#impressum">Impressum</a> · <a href="#datenschutz">Datenschutz</a></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  function toggleMenu(btn){
+    var nav = document.getElementById('mainnav');
+    var open = nav.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  document.querySelectorAll('#mainnav a').forEach(function(a){
+    a.addEventListener('click', function(){
+      document.getElementById('mainnav').classList.remove('open');
+      document.querySelector('.menu-toggle').setAttribute('aria-expanded','false');
+    });
+  });
+  if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {threshold:.12});
+    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+  } else {
+    document.querySelectorAll('.reveal').forEach(function(el){ el.classList.add('in'); });
+  }
+</script>
+</body>
+</html>
