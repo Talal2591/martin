@@ -1,0 +1,33 @@
+---
+/**
+ * Platzhalter für echte Fotos (Team, Praxis, Labor).
+ * Sobald das echte Bild vorliegt: Komponente durch <img src=... alt=...
+ * loading="lazy" width/height> ersetzen (WebP, passend zugeschnitten).
+ * `note` beschreibt, welches Motiv hier hingehört.
+ */
+interface Props {
+  /** Alt-Text, den auch das spätere echte Bild bekommen soll */
+  alt: string;
+  /** Welches Motiv gehört hier hin? (interne Notiz, sichtbar im Platzhalter) */
+  note: string;
+  /** Tailwind-Klassen für Seitenverhältnis/Größe */
+  class?: string;
+}
+const { alt, note, class: className = 'aspect-[4/3]' } = Astro.props;
+---
+
+<!-- TODO Bild: {note} -->
+<div
+  role="img"
+  aria-label={alt}
+  class={`relative flex flex-col items-center justify-center gap-3 overflow-hidden border border-gold/40 bg-creme-surface ${className}`}
+>
+  <svg class="size-10 text-gold/70" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+    <rect x="3" y="7" width="34" height="26" stroke="currentColor" stroke-width="1.2" />
+    <circle cx="14" cy="16" r="3.5" stroke="currentColor" stroke-width="1.2" />
+    <path d="M5 30l9-8 6 5 8-9 9 10" stroke="currentColor" stroke-width="1.2" />
+  </svg>
+  <p class="m-0 max-w-[80%] text-center text-[0.78rem] leading-snug text-ink/50">
+    Bildplatzhalter:<br />{note}
+  </p>
+</div>

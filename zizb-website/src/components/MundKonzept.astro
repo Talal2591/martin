@@ -1,0 +1,45 @@
+---
+/**
+ * Signature-Motiv: Das Mund-Konzept® als 3-Phasen-Modell.
+ * Wiederkehrender roter Faden der Website — Planung → Sanierung → Erhalt.
+ */
+interface Props {
+  /** 'light' auf dunklem (Navy-)Grund, 'dark' auf Creme */
+  variant?: 'dark' | 'light';
+  class?: string;
+}
+const { variant = 'dark', class: className = '' } = Astro.props;
+
+const phases = [
+  { numeral: 'I', name: 'Planung', text: 'Gründliche Diagnostik, transparente Beratung — Sie entscheiden in Ruhe.' },
+  { numeral: 'II', name: 'Sanierung', text: 'Behandlung in der richtigen Reihenfolge, vom Fundament bis zum Zahnersatz.' },
+  { numeral: 'III', name: 'Erhalt', text: 'Individuelle Vorsorge, damit das Ergebnis ein Leben lang hält.' },
+];
+
+const isLight = variant === 'light';
+---
+
+<ol class={`m-0 grid list-none gap-8 p-0 sm:grid-cols-3 sm:gap-0 ${className}`}>
+  {
+    phases.map((phase, i) => (
+      <li class="relative flex flex-col items-center px-4 text-center">
+        {i < phases.length - 1 && (
+          <span
+            class={`absolute left-[calc(50%+3rem)] top-9 hidden h-px w-[calc(100%-6rem)] sm:block ${isLight ? 'bg-gold/60' : 'bg-gold/50'}`}
+            aria-hidden="true"
+          />
+        )}
+        <span
+          class={`grid size-[4.5rem] place-items-center rounded-full border font-display text-[1.7rem] ${
+            isLight ? 'border-gold bg-white/5 text-gold' : 'border-gold bg-creme-surface text-navy'
+          }`}
+          aria-hidden="true"
+        >
+          {phase.numeral}
+        </span>
+        <h3 class={`mt-4 mb-1 text-2xl ${isLight ? 'text-white' : ''}`}>{phase.name}</h3>
+        <p class={`m-0 text-[0.92rem] leading-relaxed ${isLight ? 'text-white/75' : 'text-ink/75'}`}>{phase.text}</p>
+      </li>
+    ))
+  }
+</ol>

@@ -1,0 +1,386 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ImagePlaceholder from '../components/ImagePlaceholder.astro';
+import MundKonzept from '../components/MundKonzept.astro';
+import Faq from '../components/Faq.astro';
+import { SITE, HOURS, TEAM } from '../data/site';
+
+const usps = [
+  'Mund-Konzept®',
+  'Eigenes Meisterlabor',
+  'Volldigitale Praxis & Labor',
+  'Materialien & Geräte Made in Germany',
+  '3D-geführte Chirurgie',
+  'Barrierefrei',
+];
+
+const versprechen = [
+  {
+    title: 'Höchste Qualität',
+    text: 'Zahnmedizin ohne Kompromisse: sorgfältige Diagnostik, präzises Arbeiten und Materialien, hinter denen wir zu hundert Prozent stehen.',
+  },
+  {
+    title: 'Made in Germany',
+    text: 'Implantate, Werkstoffe und Geräte aus deutscher Fertigung — geprüfte Qualität, auf die Sie sich langfristig verlassen können.',
+  },
+  {
+    title: 'Alles aus einer Hand',
+    text: 'Diagnostik, Chirurgie, Zahnersatz und Zahntechnik unter einem Dach — kurze Wege, ein Ansprechpartner, ein Qualitätsstandard.',
+  },
+  {
+    title: 'Volldigital',
+    text: 'Vom 3D-Röntgen über den Intraoralscan bis zur CAD/CAM-Fertigung im eigenen Labor: ein durchgängig digitaler Workflow.',
+  },
+  {
+    title: 'Wir beraten, Sie entscheiden',
+    text: 'Verständliche Aufklärung, transparente Kosten, echte Alternativen — die Entscheidung über Ihre Behandlung treffen Sie.',
+  },
+];
+
+const leistungen = [
+  { title: 'Zahnimplantate', href: '/leistungen/zahnimplantate/', text: 'Feste, natürliche Zähne — Implantologie aus einer Hand, seit über 30 Jahren am Standort.' },
+  { title: 'Feste Zähne an einem Tag', href: '/leistungen/feste-zaehne-an-einem-tag/', text: 'All-on-4 / All-on-6: feste Brücke auf vier bis sechs Implantaten — oft an nur einem Tag.' },
+  { title: '3D-geführte Implantation', href: '/leistungen/3d-gefuehrte-implantation/', text: 'Computergestützt geplant, schablonengeführt gesetzt — maximale Präzision und Sicherheit.' },
+  { title: 'Knochenaufbau', href: '/leistungen/knochenaufbau/', text: 'Schafft das Fundament, wenn für Implantate zu wenig Knochen vorhanden ist.' },
+  { title: 'Fester Zahnersatz', href: '/leistungen/fester-zahnersatz/', text: 'Kronen und Brücken aus dem eigenen Meisterlabor — passgenau und langlebig.' },
+  { title: 'Vollkeramik', href: '/leistungen/vollkeramik/', text: 'Metallfreie Kronen und Inlays: biokompatibel, stabil und ästhetisch vom Naturzahn kaum zu unterscheiden.' },
+  { title: 'Veneers', href: '/leistungen/veneers/', text: 'Hauchdünne Keramikschalen für ein ebenmäßiges, natürlich schönes Lächeln.' },
+  { title: 'Bleaching', href: '/leistungen/bleaching/', text: 'Professionelle, zahnschonende Aufhellung unter zahnärztlicher Kontrolle.' },
+  { title: 'Alignertherapie', href: '/leistungen/alignertherapie/', text: 'Zahnkorrektur mit transparenten Schienen — dezent, planbar, digital überwacht.' },
+  { title: 'CMD-Therapie', href: '/leistungen/cmd-therapie/', text: 'Kiefergelenksbeschwerden, Zähneknirschen, Verspannungen — strukturierte Diagnostik und Therapie.' },
+  { title: 'Oralchirurgie', href: '/leistungen/weisheitszahnentfernung/', text: 'Von der Weisheitszahnentfernung bis zur Wurzelspitzenresektion — chirurgische Kompetenz vor Ort.' },
+  { title: 'Zahnerhalt & Prophylaxe', href: '/leistungen/professionelle-zahnreinigung/', text: 'Professionelle Zahnreinigung, Parodontologie und Wurzelbehandlung für gesunde eigene Zähne.' },
+];
+
+const faqItems = [
+  {
+    q: 'Wie vereinbare ich einen Termin?',
+    a: `Am schnellsten telefonisch unter ${SITE.phone} oder bequem über unsere Online-Terminbuchung. Neupatienten sind jederzeit willkommen — für den ersten Besuch planen wir bewusst mehr Zeit ein.`,
+  },
+  {
+    q: 'Was ist das Mund-Konzept®?',
+    a: 'Unser bewährtes Behandlungssystem in drei Phasen: Zuerst eine gründliche Diagnostik und Planung, dann die Sanierung in der medizinisch richtigen Reihenfolge, anschließend ein individuelles Vorsorgeprogramm für den langfristigen Erhalt. So entsteht ein Ergebnis, das hält — statt Einzelmaßnahmen ohne Gesamtbild.',
+  },
+  {
+    q: 'Bekomme ich Implantate wirklich komplett aus einer Hand?',
+    a: 'Ja. Planung, Knochenaufbau, Implantation und der fertige Zahnersatz aus unserem eigenen Meisterlabor finden vollständig in unserer Praxis in Barsinghausen statt — seit über 30 Jahren. Sie müssen für keinen Behandlungsschritt in eine andere Praxis.',
+  },
+  {
+    q: 'Was kostet eine Behandlung — und was übernimmt die Krankenkasse?',
+    a: 'Das hängt von Befund und gewählter Versorgung ab. Sie erhalten vor jeder Behandlung einen transparenten Kosten- und Heilplan mit echten Alternativen — von der Regelversorgung bis zur hochwertigen Privatlösung. Wir beraten, Sie entscheiden.',
+  },
+  {
+    q: 'Ist die Praxis barrierefrei?',
+    a: 'Ja, unsere Praxis in der Egestorfer Str. 4 ist barrierefrei und behindertengerecht erreichbar — auch mit Rollstuhl oder Rollator.',
+  },
+  {
+    q: 'Was mache ich bei akuten Zahnschmerzen?',
+    a: `Rufen Sie uns während der Sprechzeiten unter ${SITE.phone} an — Schmerzpatienten erhalten kurzfristig einen Termin. Außerhalb der Sprechzeiten hilft der zahnärztliche Notdienst der Region Hannover.`,
+  },
+];
+---
+
+<BaseLayout
+  title={`Zahnarzt Barsinghausen | ${SITE.name}`}
+  titleRaw
+  description="Zahnmedizin auf Meisterniveau in Barsinghausen: Implantologie aus einer Hand seit über 30 Jahren, eigenes Meisterlabor, volldigitale Praxis, CMD-Therapie. Jetzt Termin buchen: 05105 9397."
+>
+  <!-- 1) Hero -->
+  <section class="border-b hairline bg-creme-bg">
+    <div class="site-container grid items-center gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:py-24">
+      <div>
+        <p class="kicker">Zahnarzt in Barsinghausen · Region Hannover</p>
+        <h1 class="mt-5 text-[2.6rem] leading-[1.1] sm:text-6xl">
+          Zahnmedizin auf <em class="not-italic text-accent">Meisterniveau</em> — persönlich, präzise, aus einer Hand.
+        </h1>
+        <p class="mt-6 max-w-xl text-lg text-ink/80">
+          Implantologie, hochwertiger Zahnersatz und CMD-Therapie im Zahn- und
+          Implantatzentrum Barsinghausen — mit eigenem Meisterlabor und
+          volldigitalem Workflow unter einem Dach.
+        </p>
+        <div class="mt-9 flex flex-wrap gap-4">
+          <button type="button" class="btn-primary" data-termin>Termin buchen</button>
+          <a href={SITE.phoneHref} class="btn-secondary">
+            <svg class="size-4" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M3 2h3l1.5 3.5L5.8 7a9.5 9.5 0 0 0 3.2 3.2l1.5-1.7L14 10v3a1 1 0 0 1-1 1C7 14 2 9 2 3a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.2"/></svg>
+            {SITE.phone}
+          </a>
+        </div>
+      </div>
+      <ImagePlaceholder
+        alt="Heller, ruhiger Empfangsbereich des Zahn- und Implantatzentrums Barsinghausen"
+        note="Empfangsbereich oder Behandlungszimmer — großes, ruhiges Praxisfoto (praxis/empfang.webp)"
+        class="aspect-[4/3] w-full"
+      />
+    </div>
+    <!-- USP-Leiste -->
+    <div class="border-t hairline bg-creme-surface">
+      <ul class="site-container m-0 flex list-none flex-wrap items-center justify-center gap-x-8 gap-y-2 py-4 p-0 text-[0.82rem] font-medium uppercase tracking-[0.14em] text-navy/80">
+        {usps.map((usp, i) => (
+          <li class="flex items-center gap-8">
+            {i > 0 && <span class="hidden h-3 w-px bg-gold/60 sm:block" aria-hidden="true"></span>}
+            {usp}
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- 2) Begrüßung / Intro -->
+  <section class="py-20 lg:py-28">
+    <div class="site-container grid items-center gap-12 lg:grid-cols-2">
+      <ImagePlaceholder
+        alt="Talal und Sami Atassi, Inhaber des Zahn- und Implantatzentrums Barsinghausen"
+        note="Gemeinsames Portrait der Praxisinhaber Talal & Sami Atassi (team/inhaber.webp)"
+        class="order-2 aspect-[4/5] w-full max-w-md lg:order-1"
+      />
+      <div class="order-1 lg:order-2">
+        <p class="kicker">Herzlich willkommen</p>
+        <h2 class="mt-4 text-4xl sm:text-5xl">Ihre Zahnärzte im Herzen von Barsinghausen</h2>
+        <p class="mt-6">
+          Seit über 30 Jahren steht unsere Praxis an der Egestorfer Straße für
+          Implantatversorgung aus einer Hand — eine Tradition, die wir mit
+          modernster Zahnmedizin fortführen. Als inhabergeführtes Zentrum unter
+          der Leitung von <strong>Talal Atassi, D.M.D., M.Sc.</strong> und
+          <strong>Sami Atassi, D.M.D., M.Sc.</strong> verbinden wir
+          spezialisierte Oralchirurgie, Parodontologie und Implantologie mit
+          dem Anspruch, den wir selbst an unsere Behandlung stellen würden.
+        </p>
+        <p>
+          Von der hochkomplexen Rehabilitation bis zur halbjährlichen
+          Prophylaxe: Wir nehmen uns Zeit, erklären verständlich und arbeiten
+          mit einer Präzision, die man sehen kann — Zahnmedizin auf
+          Meisterniveau, mitten in der Region Hannover.
+        </p>
+        <a href="/praxis/ueber-uns/" class="btn-secondary mt-6">Unsere Praxis kennenlernen</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3) Mund-Konzept® Teaser -->
+  <section class="bg-navy py-20 text-white lg:py-24">
+    <div class="site-container">
+      <div class="mx-auto max-w-2xl text-center">
+        <p class="kicker justify-center after:h-px after:w-10 after:bg-gold after:content-['']">Unser roter Faden</p>
+        <h2 class="mt-4 text-4xl text-white sm:text-5xl">Das Mund-Konzept®</h2>
+        <p class="mt-5 text-white/80">
+          Kein Flickwerk, sondern ein Plan: Unser bewährtes Behandlungssystem
+          betrachtet Ihren gesamten Mund — in drei klar aufeinander
+          aufbauenden Phasen.
+        </p>
+      </div>
+      <MundKonzept variant="light" class="mt-14" />
+      <div class="mt-12 text-center">
+        <a href="/praxis/mund-konzept/" class="btn-ghost-light">Das Mund-Konzept® im Detail</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4) Unsere Versprechen -->
+  <section class="py-20 lg:py-28">
+    <div class="site-container">
+      <div class="max-w-2xl">
+        <p class="kicker">Woran Sie uns messen können</p>
+        <h2 class="mt-4 text-4xl sm:text-5xl">Unsere Versprechen</h2>
+      </div>
+      <div class="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+        {versprechen.map((v, i) => (
+          <article class="card flex flex-col">
+            <span class="font-display text-2xl text-gold" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+            <h3 class="mb-2 mt-3 text-[1.35rem] leading-snug">{v.title}</h3>
+            <p class="m-0 text-[0.9rem] leading-relaxed text-ink/75">{v.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 5) Leistungs-Grid -->
+  <section class="border-y hairline bg-creme-surface py-20 lg:py-28">
+    <div class="site-container">
+      <div class="flex flex-wrap items-end justify-between gap-6">
+        <div class="max-w-2xl">
+          <p class="kicker">Leistungen</p>
+          <h2 class="mt-4 text-4xl sm:text-5xl">Zahnmedizin in ihrer ganzen Breite</h2>
+          <p class="mt-4 text-ink/75">
+            Vom einzelnen Implantat bis zur kompletten Rehabilitation — alle
+            Behandlungen finden bei uns in Barsinghausen statt.
+          </p>
+        </div>
+        <a href="/leistungen/" class="btn-secondary shrink-0">Alle Leistungen</a>
+      </div>
+      <div class="mt-12 grid gap-px overflow-hidden border border-gold/40 bg-gold/40 sm:grid-cols-2 lg:grid-cols-3">
+        {leistungen.map((l) => (
+          <a href={l.href} class="group block bg-creme-bg p-7 transition-colors hover:bg-creme-surface">
+            <h3 class="mb-2 flex items-baseline justify-between gap-3 text-[1.4rem] transition-colors group-hover:text-accent">
+              {l.title}
+              <span class="text-gold transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+            </h3>
+            <p class="m-0 text-[0.9rem] leading-relaxed text-ink/70">{l.text}</p>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- 6) Behandler-Team -->
+  <section class="py-20 lg:py-28">
+    <div class="site-container">
+      <div class="mx-auto max-w-2xl text-center">
+        <p class="kicker justify-center after:h-px after:w-10 after:bg-gold after:content-['']">Ihr Behandlerteam</p>
+        <h2 class="mt-4 text-4xl sm:text-5xl">Vier Behandler, ein Anspruch</h2>
+      </div>
+      <div class="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        {TEAM.map((person) => (
+          <article class="text-center">
+            <ImagePlaceholder alt={`Portrait: ${person.name}${person.degree ? ', ' + person.degree : ''}`} note={person.imageNote} class="mx-auto aspect-[4/5] w-full" />
+            <h3 class="mb-1 mt-5 text-[1.4rem]">
+              {person.name}{person.degree && <span class="text-ink/60">, {person.degree}</span>}
+            </h3>
+            <p class="m-0 text-[0.85rem] leading-relaxed text-ink/70">{person.role}</p>
+          </article>
+        ))}
+      </div>
+      <div class="mt-12 text-center">
+        <a href="/praxis/team/" class="btn-secondary">Das ganze Team</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7) Eigenes Meisterlabor -->
+  <section class="border-y hairline bg-creme-surface py-20 lg:py-24">
+    <div class="site-container grid items-center gap-12 lg:grid-cols-2">
+      <div>
+        <p class="kicker">Zahntechnik unter demselben Dach</p>
+        <h2 class="mt-4 text-4xl sm:text-5xl">Unser eigenes Meisterlabor</h2>
+        <p class="mt-6">
+          Ihr Zahnersatz entsteht nicht irgendwo — sondern wenige Meter vom
+          Behandlungsstuhl entfernt. In unserem meistergeführten Praxislabor
+          fertigen wir Kronen, Brücken und Prothetik in einem volldigitalen
+          Workflow: vom Intraoralscan über die Konstruktion in
+          <strong>exocad</strong> bis zur präzisen CAD/CAM-Fertigung mit
+          <strong>Ceramill</strong>-Systemen.
+        </p>
+        <ul class="prose-site mt-4">
+          <li>Kurze Wege: Zahnarzt und Zahntechniker besprechen Ihren Fall direkt.</li>
+          <li>Farbnahme und Anproben persönlich in der Praxis in Barsinghausen.</li>
+          <li>Materialien und Geräte: Made in Germany.</li>
+        </ul>
+        <a href="/praxis/meisterlabor/" class="btn-secondary mt-4">Das Meisterlabor entdecken</a>
+      </div>
+      <ImagePlaceholder
+        alt="Zahntechniker bei der CAD/CAM-Fertigung im eigenen Meisterlabor der Praxis"
+        note="Zahntechniker am exocad-Arbeitsplatz oder an der Ceramill-Fräse (labor/meisterlabor.webp)"
+        class="aspect-[4/3] w-full"
+      />
+    </div>
+  </section>
+
+  <!-- 8) Patientenstimmen (Platzhalter-Komponente, echte Bewertungen später) -->
+  <section class="py-20 lg:py-24">
+    <div class="site-container">
+      <div class="mx-auto max-w-2xl text-center">
+        <p class="kicker justify-center after:h-px after:w-10 after:bg-gold after:content-['']">Patientenstimmen</p>
+        <h2 class="mt-4 text-4xl sm:text-5xl">Was unsere Patienten sagen</h2>
+      </div>
+      <!-- TODO: Echte Google-Bewertungen einpflegen (Text, Vorname/Initialen, Sternebewertung).
+           Alternativ Bewertungs-Widget (z. B. Google/jameda) DSGVO-konform einbinden. -->
+      <div class="mt-12 grid gap-6 md:grid-cols-3">
+        {[1, 2, 3].map(() => (
+          <figure class="card m-0">
+            <div class="flex gap-1 text-gold" aria-label="Bewertung: 5 von 5 Sternen">
+              {[...Array(5)].map(() => (
+                <svg class="size-4" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 1.5 10 6l4.8.4-3.6 3.2 1 4.7L8 11.8l-4.2 2.5 1-4.7L1.2 6.4 6 6 8 1.5Z"/></svg>
+              ))}
+            </div>
+            <blockquote class="m-0 mt-4 text-[0.95rem] italic leading-relaxed text-ink/70">
+              „Platzhalter für eine echte Patientenbewertung — wird nach Freigabe
+              mit Originaltext aus Google eingepflegt."
+            </blockquote>
+            <figcaption class="mt-4 text-[0.82rem] font-medium uppercase tracking-[0.18em] text-gold">Google-Bewertung</figcaption>
+          </figure>
+        ))}
+      </div>
+      <p class="mt-8 text-center">
+        <a href="/praxis/patientenstimmen/" class="text-accent underline decoration-accent-soft underline-offset-4 hover:text-navy">Alle Patientenstimmen lesen</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- 9) Sprechzeiten + Terminbuchung -->
+  <section class="bg-navy py-20 text-white lg:py-24">
+    <div class="site-container grid items-center gap-12 lg:grid-cols-2">
+      <div>
+        <p class="kicker">Termine</p>
+        <h2 class="mt-4 text-4xl text-white sm:text-5xl">Wir nehmen uns Zeit für Sie</h2>
+        <p class="mt-5 max-w-lg text-white/80">
+          Buchen Sie Ihren Termin bequem online über DrFlex — oder rufen Sie
+          uns an. Neupatienten und Schmerzpatienten sind jederzeit willkommen.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-4">
+          <button type="button" class="btn bg-white text-navy hover:bg-accent-soft" data-termin>Online Termin buchen</button>
+          <a href={SITE.phoneHref} class="btn-ghost-light">{SITE.phone}</a>
+        </div>
+      </div>
+      <div class="border border-gold/50 bg-white/5 p-8 sm:p-10">
+        <h3 class="mb-6 text-2xl text-white">Sprechzeiten</h3>
+        <dl class="m-0 space-y-3">
+          {HOURS.map((h) => (
+            <div class="flex justify-between gap-6 border-b border-white/15 pb-3 text-[0.95rem]">
+              <dt class="text-white/80">{h.days}</dt>
+              <dd class="m-0 text-right">{h.times.map((t) => <span class="block">{t} Uhr</span>)}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10) FAQ -->
+  <section class="py-20 lg:py-28">
+    <div class="site-container grid gap-12 lg:grid-cols-[0.8fr_1.2fr]">
+      <div>
+        <p class="kicker">Gut zu wissen</p>
+        <h2 class="mt-4 text-4xl sm:text-5xl">Häufige Fragen</h2>
+        <p class="mt-4 text-ink/75">
+          Ihre Frage ist nicht dabei? Rufen Sie uns an — wir helfen gern
+          persönlich weiter.
+        </p>
+      </div>
+      <Faq items={faqItems} />
+    </div>
+  </section>
+
+  <!-- 11) Anfahrt -->
+  <section class="border-t hairline bg-creme-surface py-20 lg:py-24">
+    <div class="site-container grid items-center gap-12 lg:grid-cols-2">
+      <div>
+        <p class="kicker">Anfahrt</p>
+        <h2 class="mt-4 text-4xl sm:text-5xl">Mitten in Barsinghausen</h2>
+        <address class="mt-6 not-italic">
+          <strong>{SITE.name}</strong><br />
+          {SITE.street}<br />
+          {SITE.zip} {SITE.city}
+        </address>
+        <ul class="prose-site mt-5">
+          <li>Zentral gelegen, wenige Gehminuten vom Bahnhof Barsinghausen (S-Bahn Hannover, Linie S1/S2).</li>
+          <li>Parkmöglichkeiten in unmittelbarer Umgebung.</li>
+          <li>Barrierefreier, behindertengerechter Zugang.</li>
+        </ul>
+        <a
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${SITE.name}, ${SITE.street}, ${SITE.zip} ${SITE.city}`)}`}
+          class="btn-secondary mt-4"
+          rel="noopener"
+          target="_blank"
+        >
+          Route in Google Maps planen
+        </a>
+      </div>
+      <!-- Bewusst keine eingebettete Google-Karte (DSGVO, Ladezeit) — statisches Motiv + externer Maps-Link -->
+      <ImagePlaceholder
+        alt={`Außenansicht der Praxis in der ${SITE.street}, ${SITE.city}`}
+        note="Außenansicht des Praxiseingangs Egestorfer Str. 4 oder Kartenausschnitt als statisches Bild (praxis/aussenansicht.webp)"
+        class="aspect-[4/3] w-full"
+      />
+    </div>
+  </section>
+</BaseLayout>

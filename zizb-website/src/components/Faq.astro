@@ -1,0 +1,28 @@
+---
+/** Barrierefreies FAQ-Akkordeon auf Basis von <details>/<summary>. */
+interface Props {
+  items: { q: string; a: string }[];
+}
+const { items } = Astro.props;
+---
+
+<div class="divide-y divide-gold/40 border-y border-gold/40">
+  {
+    items.map((item) => (
+      <details class="group">
+        <summary class="flex cursor-pointer list-none items-center justify-between gap-6 py-5 pr-1 font-display text-xl text-navy transition-colors hover:text-accent [&::-webkit-details-marker]:hidden">
+          {item.q}
+          <svg
+            class="size-4 shrink-0 text-gold transition-transform duration-200 group-open:rotate-45"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path d="M8 1v14M1 8h14" stroke="currentColor" stroke-width="1.3" />
+          </svg>
+        </summary>
+        <p class="mt-0 max-w-3xl pb-6 text-ink/80">{item.a}</p>
+      </details>
+    ))
+  }
+</div>

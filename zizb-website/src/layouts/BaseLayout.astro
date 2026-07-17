@@ -1,0 +1,99 @@
+---
+import '@fontsource/cormorant-garamond/500.css';
+import '@fontsource/cormorant-garamond/600.css';
+import '@fontsource/cormorant-garamond/500-italic.css';
+import '@fontsource-variable/inter';
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import DrFlexModal from '../components/DrFlexModal.astro';
+import { SITE, HOURS_SCHEMA } from '../data/site';
+
+interface Props {
+  /** Seitentitel (ohne Praxisnamen — wird angehängt) */
+  title: string;
+  description: string;
+  /** Voller Titel ohne Anhang, z. B. für die Startseite */
+  titleRaw?: boolean;
+  ogType?: string;
+}
+
+const { title, description, titleRaw = false, ogType = 'website' } = Astro.props;
+const fullTitle = titleRaw ? title : `${title} | ${SITE.name}`;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Dentist',
+  '@id': `${SITE.url}/#praxis`,
+  name: SITE.name,
+  url: SITE.url,
+  telephone: '+49 5105 9397',
+  faxNumber: '+49 5105 514205',
+  email: SITE.email,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: SITE.street,
+    postalCode: SITE.zip,
+    addressLocality: SITE.city,
+    addressRegion: SITE.region,
+    addressCountry: 'DE',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: SITE.geo.lat,
+    longitude: SITE.geo.lng,
+  },
+  openingHoursSpecification: HOURS_SCHEMA.map((h) => ({
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: h.dayOfWeek,
+    opens: h.opens,
+    closes: h.closes,
+  })),
+  medicalSpecialty: 'Dentistry',
+  isAccessibleForFree: false,
+  amenityFeature: [
+    { '@type': 'LocationFeatureSpecification', name: 'Barrierefreier Zugang', value: true },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content="de_DE" />
+    <!-- TODO Bild: OG-Share-Bild (1200x630, Praxis-Aussenansicht oder Empfang) unter /images/og-default.webp ablegen -->
+    <meta property="og:image" content={new URL('/images/og-default.webp', Astro.site)} />
+
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <a
+      href="#hauptinhalt"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:bg-navy focus:px-5 focus:py-3 focus:text-white"
+    >
+      Zum Inhalt springen
+    </a>
+    <Header />
+    <main id="hauptinhalt">
+      <slot />
+    </main>
+    <Footer />
+    <DrFlexModal />
+  </body>
+</html>

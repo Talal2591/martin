@@ -1,0 +1,76 @@
+---
+import { SITE, HOURS, LEGAL_NAV } from '../data/site';
+
+const serviceLinks = [
+  { label: 'Leistungsübersicht', href: '/leistungen/' },
+  { label: 'Zahnimplantate', href: '/leistungen/zahnimplantate/' },
+  { label: 'CMD-Therapie', href: '/leistungen/cmd-therapie/' },
+  { label: 'Vollkeramischer Zahnersatz', href: '/leistungen/vollkeramik/' },
+  { label: 'Professionelle Zahnreinigung', href: '/leistungen/professionelle-zahnreinigung/' },
+];
+const praxisLinks = [
+  { label: 'Über uns', href: '/praxis/ueber-uns/' },
+  { label: 'Das Mund-Konzept®', href: '/praxis/mund-konzept/' },
+  { label: 'Eigenes Meisterlabor', href: '/praxis/meisterlabor/' },
+  { label: 'Team', href: '/praxis/team/' },
+  { label: 'Neupatienten', href: '/neupatienten/' },
+  { label: 'Karriere', href: '/praxis/karriere/' },
+];
+---
+
+<footer class="bg-navy text-white/85">
+  <div class="site-container grid gap-12 py-16 md:grid-cols-2 lg:grid-cols-4">
+    <div>
+      <p class="m-0 font-display text-2xl font-semibold text-white">{SITE.shortName}</p>
+      <p class="mb-6 mt-0 text-[0.72rem] font-medium uppercase tracking-[0.26em] text-gold">{SITE.place}</p>
+      <address class="not-italic leading-relaxed">
+        {SITE.street}<br />
+        {SITE.zip} {SITE.city}
+      </address>
+      <p class="mt-4">
+        <a href={SITE.phoneHref} class="hover:text-accent-soft">Tel. {SITE.phone}</a><br />
+        <span>Fax {SITE.fax}</span><br />
+        <a href={`mailto:${SITE.email}`} class="hover:text-accent-soft">{SITE.email}</a>
+      </p>
+      <p class="mt-4 text-sm text-white/70">Barrierefrei &amp; behindertengerecht erreichbar.</p>
+    </div>
+
+    <div>
+      <h2 class="mb-5 font-sans text-[0.8rem] font-semibold uppercase tracking-[0.24em] text-gold">Sprechzeiten</h2>
+      <dl class="m-0 space-y-2 text-[0.95rem]">
+        {
+          HOURS.map((h) => (
+            <div class="flex justify-between gap-4 border-b border-white/10 pb-2">
+              <dt>{h.days}</dt>
+              <dd class="m-0 text-right">{h.times.map((t) => <span class="block">{t}</span>)}</dd>
+            </div>
+          ))
+        }
+      </dl>
+      <button type="button" class="btn-ghost-light mt-6 w-full text-[0.9rem]" data-termin>Termin buchen</button>
+    </div>
+
+    <div>
+      <h2 class="mb-5 font-sans text-[0.8rem] font-semibold uppercase tracking-[0.24em] text-gold">Leistungen</h2>
+      <ul class="m-0 list-none space-y-2.5 p-0 text-[0.95rem]">
+        {serviceLinks.map((l) => <li><a href={l.href} class="hover:text-accent-soft">{l.label}</a></li>)}
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="mb-5 font-sans text-[0.8rem] font-semibold uppercase tracking-[0.24em] text-gold">Praxis</h2>
+      <ul class="m-0 list-none space-y-2.5 p-0 text-[0.95rem]">
+        {praxisLinks.map((l) => <li><a href={l.href} class="hover:text-accent-soft">{l.label}</a></li>)}
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-white/15">
+    <div class="site-container flex flex-col items-start justify-between gap-3 py-6 text-sm text-white/60 md:flex-row md:items-center">
+      <p class="m-0">© {new Date().getFullYear()} {SITE.name}</p>
+      <ul class="m-0 flex list-none flex-wrap gap-x-6 gap-y-2 p-0">
+        {LEGAL_NAV.map((l) => <li><a href={l.href} class="hover:text-white">{l.label}</a></li>)}
+      </ul>
+    </div>
+  </div>
+</footer>
